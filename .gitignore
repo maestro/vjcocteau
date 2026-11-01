@@ -1,0 +1,14 @@
+# Build products
+.build/
+*.xcodeproj/xcuserdata/
+xcuserdata/
+DerivedData/
+
+# macOS
+.DS_Store
+
+# Local video clips (stock footage has its own license and is large; do not publish)
+assets/
+
+# Editor settings
+.vscode/
