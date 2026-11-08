@@ -20,6 +20,8 @@ mkdir -p "$APP/Contents/MacOS" "$APP/Contents/Resources"
 cp "$BIN_DIR/VJCocteau" "$APP/Contents/MacOS/VJCocteau"
 # Effect と Shader を含むリソースは、Contents/Resources に置きます(Bundle.module がここを探します)。
 cp -R "$BIN_DIR/VJCocteau_VJCocteau.bundle" "$APP/Contents/Resources/"
+# アプリアイコン(Resources/AppIcon.icns。作り方は scripts/make-icon.swift を参照)。
+cp "Resources/AppIcon.icns" "$APP/Contents/Resources/AppIcon.icns"
 
 cat > "$APP/Contents/Info.plist" <<PLIST
 <?xml version="1.0" encoding="UTF-8"?>
@@ -30,6 +32,7 @@ cat > "$APP/Contents/Info.plist" <<PLIST
     <key>CFBundleIdentifier</key><string>com.vjcocteau.app</string>
     <key>CFBundleName</key><string>$NAME</string>
     <key>CFBundleDisplayName</key><string>$NAME</string>
+    <key>CFBundleIconFile</key><string>AppIcon</string>
     <key>CFBundlePackageType</key><string>APPL</string>
     <key>CFBundleShortVersionString</key><string>$VERSION</string>
     <key>CFBundleVersion</key><string>$VERSION</string>
