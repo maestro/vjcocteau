@@ -1,8 +1,10 @@
 # Build products
 .build/
+build/
+dist/
+DerivedData/
 *.xcodeproj/xcuserdata/
 xcuserdata/
-DerivedData/
 
 # macOS
 .DS_Store
@@ -12,4 +14,3 @@ assets/
 
 # Editor settings
 .vscode/
-dist/

@@ -92,7 +92,7 @@ final class Renderer: NSObject, MTKViewDelegate {
     init?(view: MTKView) {
         guard let device = MTLCreateSystemDefaultDevice(),
               let queue = device.makeCommandQueue(),
-              let url = Bundle.module.url(forResource: "Composite", withExtension: "metal", subdirectory: "Shaders"),
+              let url = Bundle.main.url(forResource: "Composite", withExtension: "metal", subdirectory: "Shaders"),
               let source = try? String(contentsOf: url, encoding: .utf8),
               let library = try? device.makeLibrary(source: source, options: nil)
         else { return nil }

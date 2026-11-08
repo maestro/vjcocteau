@@ -1,0 +1,369 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		32FE4E6F057C83AC06A6ECDD /* BeatClock.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAC00276A13C53CD06EB9D89 /* BeatClock.swift */; };
+		37E5ABACDA8F35645EFB8259 /* BeatDetector.swift in Sources */ = {isa = PBXBuildFile; fileRef = 93A0165C0AD6D98BA1A92E4F /* BeatDetector.swift */; };
+		505A01892A5FBBFE781A7725 /* AppController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9EB60033E2F732EBF1226637 /* AppController.swift */; };
+		52F06A1AB1B69794941F3E37 /* Effect.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0DF2107922E43C572827C62C /* Effect.swift */; };
+		61966900BF31E61348F50276 /* SetFile.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5512097BB2CC8375E63704C /* SetFile.swift */; };
+		66D23F8D83FB187A3AA9FCBB /* Layer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A3CE804936926A3D1B9AE41 /* Layer.swift */; };
+		6C4EAC18DB0924963B7DBD40 /* Effects in Resources */ = {isa = PBXBuildFile; fileRef = 9474E47E634112B31480795C /* Effects */; };
+		7846BFF8FD49BEAB7DC83B7E /* AppIcon.icns in Resources */ = {isa = PBXBuildFile; fileRef = C90B06B1EEDC03EBD60054C4 /* AppIcon.icns */; };
+		8CB280C368DF94FA28C62E85 /* APCMini.swift in Sources */ = {isa = PBXBuildFile; fileRef = D93010B2287746F96D1609F6 /* APCMini.swift */; };
+		9237AFB9C984F6455C64BEF0 /* Shaders in Resources */ = {isa = PBXBuildFile; fileRef = 67FBB3F5F744155012DA69E4 /* Shaders */; };
+		9EE97FCD346139665B04A9FD /* Renderer.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2EA402ED215C77F51BD1696 /* Renderer.swift */; };
+		CAA5F80C1467E50B1D7949BC /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C104202E9299CE64E19FF29 /* main.swift */; };
+		CB7B71F144E4E5C4FF48C688 /* VideoClip.swift in Sources */ = {isa = PBXBuildFile; fileRef = 13E8B625096AAFB29DB9BD23 /* VideoClip.swift */; };
+		E96A8C4C7CD0DC60E4F2DA29 /* ControlView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DF8C53BEB2071CE5C3CF377 /* ControlView.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		0DF2107922E43C572827C62C /* Effect.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Effect.swift; sourceTree = "<group>"; };
+		13E8B625096AAFB29DB9BD23 /* VideoClip.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoClip.swift; sourceTree = "<group>"; };
+		3A3CE804936926A3D1B9AE41 /* Layer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Layer.swift; sourceTree = "<group>"; };
+		3DF8C53BEB2071CE5C3CF377 /* ControlView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ControlView.swift; sourceTree = "<group>"; };
+		4C104202E9299CE64E19FF29 /* main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = main.swift; sourceTree = "<group>"; };
+		67FBB3F5F744155012DA69E4 /* Shaders */ = {isa = PBXFileReference; lastKnownFileType = folder; name = Shaders; path = Sources/VJCocteau/Shaders; sourceTree = SOURCE_ROOT; };
+		93A0165C0AD6D98BA1A92E4F /* BeatDetector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BeatDetector.swift; sourceTree = "<group>"; };
+		9474E47E634112B31480795C /* Effects */ = {isa = PBXFileReference; lastKnownFileType = folder; name = Effects; path = Sources/VJCocteau/Effects; sourceTree = SOURCE_ROOT; };
+		9EB60033E2F732EBF1226637 /* AppController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppController.swift; sourceTree = "<group>"; };
+		AEC75689BB4E1FF57AE8F6C3 /* VJCocteau.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = VJCocteau.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		C2EA402ED215C77F51BD1696 /* Renderer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Renderer.swift; sourceTree = "<group>"; };
+		C90B06B1EEDC03EBD60054C4 /* AppIcon.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = AppIcon.icns; sourceTree = "<group>"; };
+		D93010B2287746F96D1609F6 /* APCMini.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APCMini.swift; sourceTree = "<group>"; };
+		E5512097BB2CC8375E63704C /* SetFile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SetFile.swift; sourceTree = "<group>"; };
+		FAC00276A13C53CD06EB9D89 /* BeatClock.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BeatClock.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXGroup section */
+		7D64EFB3210B19BA44FAA4CE /* VJCocteau */ = {
+			isa = PBXGroup;
+			children = (
+				D93010B2287746F96D1609F6 /* APCMini.swift */,
+				9EB60033E2F732EBF1226637 /* AppController.swift */,
+				FAC00276A13C53CD06EB9D89 /* BeatClock.swift */,
+				93A0165C0AD6D98BA1A92E4F /* BeatDetector.swift */,
+				3DF8C53BEB2071CE5C3CF377 /* ControlView.swift */,
+				0DF2107922E43C572827C62C /* Effect.swift */,
+				3A3CE804936926A3D1B9AE41 /* Layer.swift */,
+				4C104202E9299CE64E19FF29 /* main.swift */,
+				C2EA402ED215C77F51BD1696 /* Renderer.swift */,
+				E5512097BB2CC8375E63704C /* SetFile.swift */,
+				13E8B625096AAFB29DB9BD23 /* VideoClip.swift */,
+			);
+			name = VJCocteau;
+			path = Sources/VJCocteau;
+			sourceTree = "<group>";
+		};
+		9BF026F789E52BE64DE999F0 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				AEC75689BB4E1FF57AE8F6C3 /* VJCocteau.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		E444108BC2D3B53E373D667F /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				C90B06B1EEDC03EBD60054C4 /* AppIcon.icns */,
+			);
+			path = Resources;
+			sourceTree = "<group>";
+		};
+		EAB1281A41A31216755D03C9 = {
+			isa = PBXGroup;
+			children = (
+				9474E47E634112B31480795C /* Effects */,
+				67FBB3F5F744155012DA69E4 /* Shaders */,
+				E444108BC2D3B53E373D667F /* Resources */,
+				7D64EFB3210B19BA44FAA4CE /* VJCocteau */,
+				9BF026F789E52BE64DE999F0 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		9C3A5290590BE92571EB37E8 /* VJCocteau */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 94E0EA752832E6121C38C046 /* Build configuration list for PBXNativeTarget "VJCocteau" */;
+			buildPhases = (
+				474BFA3F0DFB977819C87C92 /* Sources */,
+				D285ABC41CC3C731A9F6846B /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = VJCocteau;
+			packageProductDependencies = (
+			);
+			productName = VJCocteau;
+			productReference = AEC75689BB4E1FF57AE8F6C3 /* VJCocteau.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		A9FBBCACDDA80E589DCD3309 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = YES;
+				LastUpgradeCheck = 1430;
+				TargetAttributes = {
+					9C3A5290590BE92571EB37E8 = {
+						ProvisioningStyle = Manual;
+					};
+				};
+			};
+			buildConfigurationList = DDBDA45ABAB0BC0D2B09789D /* Build configuration list for PBXProject "VJCocteau" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				Base,
+				en,
+			);
+			mainGroup = EAB1281A41A31216755D03C9;
+			minimizedProjectReferenceProxies = 1;
+			preferredProjectObjectVersion = 77;
+			productRefGroup = 9BF026F789E52BE64DE999F0 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				9C3A5290590BE92571EB37E8 /* VJCocteau */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		D285ABC41CC3C731A9F6846B /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				7846BFF8FD49BEAB7DC83B7E /* AppIcon.icns in Resources */,
+				6C4EAC18DB0924963B7DBD40 /* Effects in Resources */,
+				9237AFB9C984F6455C64BEF0 /* Shaders in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		474BFA3F0DFB977819C87C92 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				8CB280C368DF94FA28C62E85 /* APCMini.swift in Sources */,
+				505A01892A5FBBFE781A7725 /* AppController.swift in Sources */,
+				32FE4E6F057C83AC06A6ECDD /* BeatClock.swift in Sources */,
+				37E5ABACDA8F35645EFB8259 /* BeatDetector.swift in Sources */,
+				E96A8C4C7CD0DC60E4F2DA29 /* ControlView.swift in Sources */,
+				52F06A1AB1B69794941F3E37 /* Effect.swift in Sources */,
+				66D23F8D83FB187A3AA9FCBB /* Layer.swift in Sources */,
+				9EE97FCD346139665B04A9FD /* Renderer.swift in Sources */,
+				61966900BF31E61348F50276 /* SetFile.swift in Sources */,
+				CB7B71F144E4E5C4FF48C688 /* VideoClip.swift in Sources */,
+				CAA5F80C1467E50B1D7949BC /* main.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		2595F9F95315C278A75C75CB /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"DEBUG=1",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MARKETING_VERSION = 0.1.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.9;
+			};
+			name = Debug;
+		};
+		7745A1C5AC643D81BEE36E17 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = Config/VJCocteau.entitlements;
+				CODE_SIGN_IDENTITY = "-";
+				CODE_SIGN_STYLE = Manual;
+				COMBINE_HIDPI_IMAGES = YES;
+				ENABLE_HARDENED_RUNTIME = YES;
+				INFOPLIST_FILE = Config/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				PRODUCT_BUNDLE_IDENTIFIER = com.vjcocteau.app;
+				PRODUCT_NAME = "VJ Cocteau";
+				SDKROOT = macosx;
+			};
+			name = Debug;
+		};
+		C12C97720C1BC9E6AA12782E /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = Config/VJCocteau.entitlements;
+				CODE_SIGN_IDENTITY = "-";
+				CODE_SIGN_STYLE = Manual;
+				COMBINE_HIDPI_IMAGES = YES;
+				ENABLE_HARDENED_RUNTIME = YES;
+				INFOPLIST_FILE = Config/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				PRODUCT_BUNDLE_IDENTIFIER = com.vjcocteau.app;
+				PRODUCT_NAME = "VJ Cocteau";
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
+		F631FA87678879A6BA1B6A03 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MARKETING_VERSION = 0.1.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 5.9;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		94E0EA752832E6121C38C046 /* Build configuration list for PBXNativeTarget "VJCocteau" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				7745A1C5AC643D81BEE36E17 /* Debug */,
+				C12C97720C1BC9E6AA12782E /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		DDBDA45ABAB0BC0D2B09789D /* Build configuration list for PBXProject "VJCocteau" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				2595F9F95315C278A75C75CB /* Debug */,
+				F631FA87678879A6BA1B6A03 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = A9FBBCACDDA80E589DCD3309 /* Project object */;
+}

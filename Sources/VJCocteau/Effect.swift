@@ -101,7 +101,7 @@ final class EffectLibrary: ObservableObject {
         self.device = device
         self.pixelFormat = pixelFormat
         var folders: [URL] = []
-        if let bundled = Bundle.module.url(forResource: "Effects", withExtension: nil) { folders.append(bundled) }
+        if let bundled = Bundle.main.url(forResource: "Effects", withExtension: nil) { folders.append(bundled) }
         try? FileManager.default.createDirectory(at: Self.userFolder, withIntermediateDirectories: true)
         folders.append(Self.userFolder)
         self.folders = folders
