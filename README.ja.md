@@ -25,6 +25,10 @@ Swift、Metal、AVFoundation、CoreMIDI で作っています。Akai Professiona
 
 - **Set** — 32個の Bank 全体(Clip のパス、不透明度、Blend Mode、Layer・Bank・Master の Effect Chain)を、**ファイル**メニューから1つの JSON ファイルへ保存・読込できます(`⌘O` / `⌘S` / `⇧⌘S`)。動画はコピーせず、パスで参照します。Set からの相対パスも記録するので、Set と動画を一緒に移動できます。読み込み後、Clip は OFF から始まります。アプリの設定(ディスプレイ、Fit Mode、解像度、音声入力、BPM、Launch Quantize)は Set とは別に保存され、Set には含まれません。起動時に、前回の Set を開き直します。
 
+## パッケージ化
+
+`scripts/package.sh` で `dist/VJ Cocteau.app` と zip を作ります(`--universal` で arm64 + x86_64)。既定は ad-hoc 署名で、自分の Mac で動かすには十分です。ほかの Mac へ配ると Gatekeeper に止められます(右クリック → 開く)。配布するときは `SIGN_ID="Developer ID Application: …"` を渡して署名し、`xcrun notarytool` で公証してください。
+
 ## 動作環境
 
 - macOS 14 以降(開発は Apple Silicon)

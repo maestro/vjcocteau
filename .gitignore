@@ -12,3 +12,4 @@ assets/
 
 # Editor settings
 .vscode/
+dist/

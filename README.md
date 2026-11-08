@@ -25,6 +25,10 @@ Built with Swift, Metal, AVFoundation and CoreMIDI. Designed around the Akai Pro
 
 - **Sets** — save and load all 32 Banks (Clip paths, opacity, Blend Modes, Layer/Bank/Master Effect Chains) as one JSON file from the **File** menu (`⌘O` / `⌘S` / `⇧⌘S`). Video files are referenced by path, not copied, and the Set remembers a path relative to itself too, so a Set and its footage can move together. Clips start OFF after loading. App settings (display, Fit Mode, resolution, audio input, BPM, Launch Quantize) are stored separately and are not part of a Set. The last Set is reopened at launch.
 
+## Packaging
+
+`scripts/package.sh` builds `dist/VJ Cocteau.app` and a zip (`--universal` for arm64 + x86_64). It is ad-hoc signed by default, which is enough for your own Mac; a copy downloaded onto another Mac is blocked by Gatekeeper (right-click → Open). For distribution, set `SIGN_ID="Developer ID Application: …"` and notarize the result with `xcrun notarytool`.
+
 ## Requirements
 
 - macOS 14 or later (developed on Apple Silicon)
