@@ -111,7 +111,7 @@ A Deck that is fully faded out is not drawn, but its videos keep playing so that
 ## Project layout
 
 ```
-Sources/VJCocteau/
+VJCocteau/
   main.swift            app setup, windows, menus
   AppController.swift   actions from the menu, UI and controller; output display
   APCMini.swift         APC mini MK2 input, LEDs, Pickup (CoreMIDI)

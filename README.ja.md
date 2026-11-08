@@ -111,7 +111,7 @@ Clip(AVFoundation) ─▶ Metal テクスチャ
 ## プロジェクトの構成
 
 ```
-Sources/VJCocteau/
+VJCocteau/
   main.swift            アプリの起動、ウィンドウ、メニュー
   AppController.swift   メニュー、UI、コントローラーからの操作。出力ディスプレイ
   APCMini.swift         APC mini MK2 の入力、LED、Pickup(CoreMIDI)

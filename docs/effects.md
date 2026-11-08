@@ -10,7 +10,7 @@ Effects/invert/
   effect.metal   the shader
 ```
 
-Built-in Effects live in `Sources/VJCocteau/Effects/`. Your own go in `~/Library/Application Support/VJ Cocteau/Effects/` (the folder button in the Effect panel opens it). If a name exists in both, yours wins. Saving a file reloads it within a second. If it fails to compile, the last working version keeps running and the error is shown in the panel.
+Built-in Effects live in `VJCocteau/Effects/`. Your own go in `~/Library/Application Support/VJ Cocteau/Effects/` (the folder button in the Effect panel opens it). If a name exists in both, yours wins. Saving a file reloads it within a second. If it fails to compile, the last working version keeps running and the error is shown in the panel.
 
 ## effect.json
 

@@ -14,23 +14,23 @@ targets:
     type: application
     platform: macOS
     sources:
-      - path: Sources/VJCocteau
-        excludes: [Shaders, Effects]
+      - path: VJCocteau
+        excludes: [Shaders, Effects, Info.plist, VJCocteau.entitlements, Resources]
       # Shader と Effect は、実行時にソースを読んでコンパイルするので、フォルダのまま Resources へ入れます。
-      - path: Sources/VJCocteau/Shaders
+      - path: VJCocteau/Shaders
         type: folder
         buildPhase: resources
-      - path: Sources/VJCocteau/Effects
+      - path: VJCocteau/Effects
         type: folder
         buildPhase: resources
-      - path: Resources/AppIcon.icns
+      - path: VJCocteau/Resources/AppIcon.icns
         buildPhase: resources
     settings:
       base:
         PRODUCT_NAME: VJ Cocteau
         PRODUCT_BUNDLE_IDENTIFIER: com.vjcocteau.app
-        INFOPLIST_FILE: Config/Info.plist
-        CODE_SIGN_ENTITLEMENTS: Config/VJCocteau.entitlements
+        INFOPLIST_FILE: VJCocteau/Info.plist
+        CODE_SIGN_ENTITLEMENTS: VJCocteau/VJCocteau.entitlements
         ENABLE_HARDENED_RUNTIME: YES
         CODE_SIGN_IDENTITY: "-"
         CODE_SIGN_STYLE: Manual

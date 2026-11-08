@@ -29,9 +29,9 @@
 		3A3CE804936926A3D1B9AE41 /* Layer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Layer.swift; sourceTree = "<group>"; };
 		3DF8C53BEB2071CE5C3CF377 /* ControlView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ControlView.swift; sourceTree = "<group>"; };
 		4C104202E9299CE64E19FF29 /* main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = main.swift; sourceTree = "<group>"; };
-		67FBB3F5F744155012DA69E4 /* Shaders */ = {isa = PBXFileReference; lastKnownFileType = folder; name = Shaders; path = Sources/VJCocteau/Shaders; sourceTree = SOURCE_ROOT; };
+		67FBB3F5F744155012DA69E4 /* Shaders */ = {isa = PBXFileReference; lastKnownFileType = folder; name = Shaders; path = VJCocteau/Shaders; sourceTree = SOURCE_ROOT; };
 		93A0165C0AD6D98BA1A92E4F /* BeatDetector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BeatDetector.swift; sourceTree = "<group>"; };
-		9474E47E634112B31480795C /* Effects */ = {isa = PBXFileReference; lastKnownFileType = folder; name = Effects; path = Sources/VJCocteau/Effects; sourceTree = SOURCE_ROOT; };
+		9474E47E634112B31480795C /* Effects */ = {isa = PBXFileReference; lastKnownFileType = folder; name = Effects; path = VJCocteau/Effects; sourceTree = SOURCE_ROOT; };
 		9EB60033E2F732EBF1226637 /* AppController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppController.swift; sourceTree = "<group>"; };
 		AEC75689BB4E1FF57AE8F6C3 /* VJCocteau.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = VJCocteau.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		C2EA402ED215C77F51BD1696 /* Renderer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Renderer.swift; sourceTree = "<group>"; };
@@ -57,8 +57,7 @@
 				E5512097BB2CC8375E63704C /* SetFile.swift */,
 				13E8B625096AAFB29DB9BD23 /* VideoClip.swift */,
 			);
-			name = VJCocteau;
-			path = Sources/VJCocteau;
+			path = VJCocteau;
 			sourceTree = "<group>";
 		};
 		9BF026F789E52BE64DE999F0 /* Products */ = {
@@ -74,7 +73,8 @@
 			children = (
 				C90B06B1EEDC03EBD60054C4 /* AppIcon.icns */,
 			);
-			path = Resources;
+			name = Resources;
+			path = VJCocteau/Resources;
 			sourceTree = "<group>";
 		};
 		EAB1281A41A31216755D03C9 = {
@@ -246,12 +246,12 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				CODE_SIGN_ENTITLEMENTS = Config/VJCocteau.entitlements;
+				CODE_SIGN_ENTITLEMENTS = VJCocteau/VJCocteau.entitlements;
 				CODE_SIGN_IDENTITY = "-";
 				CODE_SIGN_STYLE = Manual;
 				COMBINE_HIDPI_IMAGES = YES;
 				ENABLE_HARDENED_RUNTIME = YES;
-				INFOPLIST_FILE = Config/Info.plist;
+				INFOPLIST_FILE = VJCocteau/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
@@ -267,12 +267,12 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				CODE_SIGN_ENTITLEMENTS = Config/VJCocteau.entitlements;
+				CODE_SIGN_ENTITLEMENTS = VJCocteau/VJCocteau.entitlements;
 				CODE_SIGN_IDENTITY = "-";
 				CODE_SIGN_STYLE = Manual;
 				COMBINE_HIDPI_IMAGES = YES;
 				ENABLE_HARDENED_RUNTIME = YES;
-				INFOPLIST_FILE = Config/Info.plist;
+				INFOPLIST_FILE = VJCocteau/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",

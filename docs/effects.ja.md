@@ -10,7 +10,7 @@ Effects/invert/
   effect.metal   シェーダー
 ```
 
-標準の Effect は `Sources/VJCocteau/Effects/` にあります。自作の Effect は `~/Library/Application Support/VJ Cocteau/Effects/` に置きます(Effect パネルのフォルダボタンで開けます)。同じ名前が両方にあれば、自作が優先です。ファイルを保存すると、1秒以内に読み込み直します。コンパイルに失敗しても、直前に動いた版が動き続けます。エラーはパネルに表示されます。
+標準の Effect は `VJCocteau/Effects/` にあります。自作の Effect は `~/Library/Application Support/VJ Cocteau/Effects/` に置きます(Effect パネルのフォルダボタンで開けます)。同じ名前が両方にあれば、自作が優先です。ファイルを保存すると、1秒以内に読み込み直します。コンパイルに失敗しても、直前に動いた版が動き続けます。エラーはパネルに表示されます。
 
 ## effect.json
 
