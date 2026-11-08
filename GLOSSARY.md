@@ -69,7 +69,7 @@ An ordered list of Effects applied at a Layer, a Bank or the Master. Up to 4 per
 _Avoid_: effect stack, FX list
 
 **Set**:
-A saved unit for one live show: the Clip assignments of the whole Bank Library (all 32 Banks). Clips are not added or swapped during the show.
+A saved unit for one live show: the Clip assignments of the whole Bank Library (all 32 Banks), with their opacity, Blend Modes and Effect Chains, plus the Master Effect Chain. Clips are not added or swapped during the show. Live state such as Clip ON/OFF and the Crossfader is not part of a Set.
 _Avoid_: project, preset, setlist
 
 **Master**:

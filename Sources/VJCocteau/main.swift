@@ -31,6 +31,7 @@ for (index, url) in clipURLs.enumerated() {
     }
     renderer.decks[0].bank.layers[index].slots[0].setOn(true)
 }
+if clipURLs.isEmpty { controller.reopenLastSet() }
 controller.applyOutput()
 
 // 操作用ウィンドウ。出力先とは別のディスプレイ(内蔵を優先)の中央に置きます。暗いテーマで、タイトルバーを背景に溶け込ませます。
@@ -63,6 +64,14 @@ func addMenu(_ title: String, _ build: (NSMenu) -> Void) {
 }
 addMenu("VJ Cocteau") { menu in
     menu.addItem(withTitle: "終了", action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q")
+}
+addMenu("ファイル") { menu in
+    let open = menu.addItem(withTitle: "Set を開く…", action: #selector(AppController.openSet(_:)), keyEquivalent: "o")
+    open.target = controller
+    let save = menu.addItem(withTitle: "Set を保存", action: #selector(AppController.saveSet(_:)), keyEquivalent: "s")
+    save.target = controller
+    let saveAs = menu.addItem(withTitle: "Set を別名で保存…", action: #selector(AppController.saveSetAs(_:)), keyEquivalent: "S")
+    saveAs.target = controller
 }
 addMenu("表示") { menu in
     let full = menu.addItem(withTitle: "フルスクリーン切り替え", action: #selector(AppController.toggleFullScreen(_:)), keyEquivalent: "f")

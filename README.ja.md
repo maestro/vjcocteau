@@ -6,7 +6,7 @@ Mac ネイティブの VJ ソフトウェアです。MIDI コントローラー�
 
 Swift、Metal、AVFoundation、CoreMIDI で作っています。Akai Professional の **APC mini MK2** を前提に設計しています。
 
-> **ステータス: 開発の初期段階です。** 段階1〜5を実装済みです([ロードマップ](#ロードマップ)を参照)。APC mini MK2 との連携は、疑似の MIDI 機器でだけ検証していて、**実機ではまだ試していません**。
+> **ステータス: 開発の初期段階です。** 段階1〜6を実装済みです([ロードマップ](#ロードマップ)を参照)。APC mini MK2 との連携は、疑似の MIDI 機器でだけ検証していて、**実機ではまだ試していません**。
 
 ## 特長
 
@@ -23,7 +23,7 @@ Swift、Metal、AVFoundation、CoreMIDI で作っています。Akai Professiona
 
 - **Beat Detection** — 音声の入力(例: 会場のミキサー出力をつないだオーディオインターフェース)を選ぶと、低域の立ち上がりから、テンポと拍の位置に追従します。Downbeat は手動のままです。タップや BPM の手入力をすると、検出は止まります。初回は、macOS がマイクの許可を求めます(ターミナルから起動した場合は、ターミナルのアプリに許可を求めることがあります)。
 
-予定: Set の保存・読込。[ロードマップ](#ロードマップ)を参照してください。
+- **Set** — 32個の Bank 全体(Clip のパス、不透明度、Blend Mode、Layer・Bank・Master の Effect Chain)を、**ファイル**メニューから1つの JSON ファイルへ保存・読込できます(`⌘O` / `⌘S` / `⇧⌘S`)。動画はコピーせず、パスで参照します。Set からの相対パスも記録するので、Set と動画を一緒に移動できます。読み込み後、Clip は OFF から始まります。アプリの設定(ディスプレイ、Fit Mode、解像度、音声入力、BPM、Launch Quantize)は Set とは別に保存され、Set には含まれません。起動時に、前回の Set を開き直します。
 
 ## 動作環境
 
@@ -51,6 +51,7 @@ swift run -c release VJCocteau [動画1 動画2 ... 動画8]
 |---|---|
 | `1` `2` `3` | Fit Mode: 引き伸ばし / 黒帯 / 切り抜き |
 | `4` `5` `6` `7` | Output Resolution: 720p / 1080p / 4K / ウィンドウに合わせる |
+| `⌘O` `⌘S` `⇧⌘S` | Set を開く / 保存 / 別名で保存 |
 | `f` | フルスクリーン切り替え(Output Window) |
 | `a` `s` | Edit Deck を A / B にする |
 | `z` `x` | Deck A / B へ Cut |
@@ -135,7 +136,7 @@ GLOSSARY.ja.md          プロジェクトの用語集
 - [x] 3. APC mini MK2 の入出力、Clip Matrix、Bank Library と Deck
 - [x] 4. Effect を Metal シェーダーのファイル + パラメータ宣言で追加できるようにする(ホットリロード)
 - [x] 5. Beat Clock: タップテンポ、続いて音声入力からの Beat Detection、拍に揃えた切り替え
-- [ ] 6. Set(32個の Bank 全体)の保存と読込
+- [x] 6. Set(32個の Bank 全体)の保存と読込
 
 ## ライセンス
 

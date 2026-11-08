@@ -44,6 +44,10 @@ final class AppController: NSObject, NSMenuItemValidation, NSMenuDelegate, NSWin
     private struct Pending { let key: AnyHashable; let time: Double; let action: () -> Void; let cleanup: () -> Void }
     private var pending: [Pending] = []
 
+    private static let lastSetKey = "lastSetPath"
+    /// いま開いている(最後に保存した)Set のファイルです。
+    @Published private(set) var setURL: URL?
+
     init(renderer: Renderer) {
         self.renderer = renderer
         outputDisplayID = Self.initialOutputDisplayID()
@@ -115,6 +119,12 @@ final class AppController: NSObject, NSMenuItemValidation, NSMenuDelegate, NSWin
         removed.forEach { $0.cleanup() }
     }
 
+    private func cancelAllPending() {
+        let removed = pending
+        pending.removeAll()
+        removed.forEach { $0.cleanup() }
+    }
+
     /// 時刻が来た操作を実行します。
     private func runDue() {
         let now = CACurrentMediaTime()
@@ -183,6 +193,111 @@ final class AppController: NSObject, NSMenuItemValidation, NSMenuDelegate, NSWin
             alert.messageText = "動画を開けませんでした"
             alert.informativeText = url.path
             alert.runModal()
+        }
+    }
+
+    // MARK: - Set の保存と読み込み
+
+    private func showError(_ message: String, detail: String) {
+        let alert = NSAlert()
+        alert.messageText = message
+        alert.informativeText = detail
+        alert.runModal()
+    }
+
+    private func setPanelFolder(_ panel: NSSavePanel) {
+        if let setURL { panel.directoryURL = setURL.deletingLastPathComponent() }
+    }
+
+    /// Set を保存します。まだ保存先がなければ、場所を選びます。
+    @objc func saveSet(_ sender: Any?) {
+        if let setURL { write(to: setURL) } else { saveSetAs(sender) }
+    }
+
+    @objc func saveSetAs(_ sender: Any?) {
+        let panel = NSSavePanel()
+        panel.allowedContentTypes = [.json]
+        panel.nameFieldStringValue = setURL?.lastPathComponent ?? "Untitled.vjset.json"
+        panel.message = "Set の保存先を選んでください(動画そのものは保存しません)"
+        setPanelFolder(panel)
+        if panel.runModal() == .OK, let url = panel.url { write(to: url) }
+    }
+
+    func write(to url: URL) {
+        let file = SetFile.make(banks: renderer.bankLibrary, master: renderer.masterEffects, fileURL: url)
+        let encoder = JSONEncoder()
+        encoder.outputFormatting = [.prettyPrinted, .sortedKeys]
+        do {
+            try encoder.encode(file).write(to: url, options: .atomic)
+            rememberSet(url)
+        } catch {
+            showError("Set を保存できませんでした", detail: error.localizedDescription)
+        }
+    }
+
+    @objc func openSet(_ sender: Any?) {
+        let panel = NSOpenPanel()
+        panel.allowedContentTypes = [.json]
+        panel.allowsMultipleSelection = false
+        panel.message = "開く Set を選んでください"
+        setPanelFolder(panel)
+        if panel.runModal() == .OK, let url = panel.url { read(from: url, interactive: true) }
+    }
+
+    /// 前回の Set があれば開きます。起動時に使います。
+    func reopenLastSet() {
+        guard let path = UserDefaults.standard.string(forKey: Self.lastSetKey),
+              FileManager.default.fileExists(atPath: path) else { return }
+        read(from: URL(fileURLWithPath: path), interactive: false)
+    }
+
+    private func rememberSet(_ url: URL) {
+        setURL = url
+        UserDefaults.standard.set(url.path, forKey: Self.lastSetKey)
+        updateTitle()
+    }
+
+    /// Set を読み込み、32個の Bank と Master の Effect Chain を置き換えます。
+    /// ON だった Clip はすべて OFF から始まります。見つからない動画は、空のスロットにして、あとで知らせます。
+    func read(from url: URL, interactive: Bool) {
+        let file: SetFile
+        do {
+            file = try JSONDecoder().decode(SetFile.self, from: Data(contentsOf: url))
+        } catch {
+            if interactive { showError("Set を読み込めませんでした", detail: "\(url.lastPathComponent)\n\(error.localizedDescription)") }
+            return
+        }
+        guard file.version <= SetFile.currentVersion else {
+            if interactive { showError("新しい形式の Set です", detail: "このアプリより新しい版で保存されています(version \(file.version))。") }
+            return
+        }
+        cancelAllPending()
+        renderer.decks.forEach { $0.cancelLoading() }
+        var missing: [String] = []
+        for (bank, data) in zip(renderer.bankLibrary, file.banks) {
+            for (layerIndex, (layer, layerData)) in zip(bank.layers, data.layers).enumerated() {
+                layer.opacity = layerData.opacity
+                layer.isEnabled = layerData.isEnabled
+                layer.effects.load(layerData.effects)
+                for (slotIndex, (slot, slotData)) in zip(layer.slots, layerData.slots).enumerated() {
+                    slot.reset()
+                    slot.opacity = slotData.opacity
+                    slot.blendMode = BlendMode(rawValue: slotData.blend) ?? .normal
+                    guard slotData.path != nil || slotData.relativePath != nil else { continue }
+                    if let found = file.resolve(slotData, fileURL: url) {
+                        if !loadClip(found, bank: bank, layer: layerIndex, slot: slotIndex) { missing.append(found.path) }
+                    } else {
+                        missing.append(slotData.path ?? slotData.relativePath ?? "")
+                    }
+                }
+            }
+            bank.effects.load(data.effects)
+        }
+        renderer.masterEffects.load(file.master)
+        rememberSet(url)
+        if !missing.isEmpty && interactive {
+            showError("開けなかった動画が \(missing.count) 本あります",
+                      detail: missing.prefix(8).joined(separator: "\n") + (missing.count > 8 ? "\n…" : ""))
         }
     }
 

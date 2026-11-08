@@ -70,6 +70,7 @@ final class EffectChain: ObservableObject {
         return true
     }
     func remove(_ instance: EffectInstance) { items.removeAll { $0 === instance } }
+    func replace(_ newItems: [EffectInstance]) { items = newItems }
     func move(_ instance: EffectInstance, by offset: Int) {
         guard let i = items.firstIndex(where: { $0 === instance }) else { return }
         let j = i + offset

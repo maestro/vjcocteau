@@ -55,6 +55,13 @@ final class ClipSlot: ObservableObject {
         return true
     }
 
+    /// 割り当てを外し、不透明度と Blend Mode も初期値に戻します。
+    func reset() {
+        clear()
+        opacity = 1
+        blendMode = .normal
+    }
+
     func clear() {
         clip?.stop()
         clip = nil
@@ -148,6 +155,14 @@ final class Deck: ObservableObject {
     func beginLoading(_ next: Bank) {
         if let pendingBank, pendingBank !== bank { pendingBank.deactivate() }
         pendingBank = next
+        progress = 0
+        commitTime = nil
+    }
+
+    /// ロード中の Bank を取り消します。映像は元の Bank のままです。
+    func cancelLoading() {
+        if let pendingBank, pendingBank !== bank { pendingBank.deactivate() }
+        pendingBank = nil
         progress = 0
         commitTime = nil
     }

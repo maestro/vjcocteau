@@ -6,7 +6,7 @@ A native macOS VJ application. Switch, layer and (soon) process live video from 
 
 Built with Swift, Metal, AVFoundation and CoreMIDI. Designed around the Akai Professional **APC mini MK2**.
 
-> **Status: early development.** Stages 1–5 are implemented (see [Roadmap](#roadmap)). The APC mini MK2 integration has been tested only against a simulated MIDI device, **not yet on real hardware**.
+> **Status: early development.** Stages 1–6 are implemented (see [Roadmap](#roadmap)). The APC mini MK2 integration has been tested only against a simulated MIDI device, **not yet on real hardware**.
 
 ## Features
 
@@ -23,7 +23,7 @@ Built with Swift, Metal, AVFoundation and CoreMIDI. Designed around the Akai Pro
 
 - **Beat Detection** — pick an audio input (for example an interface fed from the venue mixer) and the app follows its tempo and beat position from the low-frequency onsets. Downbeats stay manual, and tapping or typing a BPM switches detection off. macOS asks for microphone access the first time (when started from a terminal, the permission may be asked of the terminal app instead).
 
-Planned: Set save/load. See [Roadmap](#roadmap).
+- **Sets** — save and load all 32 Banks (Clip paths, opacity, Blend Modes, Layer/Bank/Master Effect Chains) as one JSON file from the **File** menu (`⌘O` / `⌘S` / `⇧⌘S`). Video files are referenced by path, not copied, and the Set remembers a path relative to itself too, so a Set and its footage can move together. Clips start OFF after loading. App settings (display, Fit Mode, resolution, audio input, BPM, Launch Quantize) are stored separately and are not part of a Set. The last Set is reopened at launch.
 
 ## Requirements
 
@@ -51,6 +51,7 @@ On first launch the Output Window goes to the first non-built-in display, or to 
 |---|---|
 | `1` `2` `3` | Fit Mode: stretch / letterbox / crop |
 | `4` `5` `6` `7` | Output Resolution: 720p / 1080p / 4K / follow window |
+| `⌘O` `⌘S` `⇧⌘S` | Open Set / save Set / save Set as |
 | `f` | Toggle full screen (Output Window) |
 | `a` `s` | Edit Deck A / B |
 | `z` `x` | Cut to Deck A / B |
@@ -135,7 +136,7 @@ All documents are available in English and Japanese (`*.ja.md`).
 - [x] 3. APC mini MK2 input/output, Clip Matrix, Bank Library and Decks
 - [x] 4. Effects as Metal shader files with parameter declarations, hot-reload
 - [x] 5. Beat Clock: tap tempo, beat detection from audio input, quantized launches
-- [ ] 6. Save and load a Set (all 32 Banks)
+- [x] 6. Save and load a Set (all 32 Banks)
 
 ## License
 

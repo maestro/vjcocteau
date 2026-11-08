@@ -31,8 +31,15 @@ enum OutputResolution: Int, CaseIterable {
 
 /// 出力に関する設定です。画面の UI とメニューの両方から変更されます。
 final class OutputSettings: ObservableObject {
-    @Published var fitMode: FitMode = .contain
-    @Published var resolution: OutputResolution = .p1080
+    /// アプリの設定として、UserDefaults に保存します(Set とは別です)。
+    @Published var fitMode: FitMode = (UserDefaults.standard.object(forKey: "fitMode") as? Int).flatMap { FitMode(rawValue: Int32($0)) } ?? .contain {
+        didSet { UserDefaults.standard.set(Int(fitMode.rawValue), forKey: "fitMode") }
+    }
+    @Published var resolution: OutputResolution = {
+        (UserDefaults.standard.object(forKey: "outputResolution") as? Int).flatMap { OutputResolution(rawValue: $0) } ?? .p1080
+    }() {
+        didSet { UserDefaults.standard.set(resolution.rawValue, forKey: "outputResolution") }
+    }
     /// 0 で Deck A のみ、1 で Deck B のみが映ります。
     @Published var crossfader: Float = 0
     @Published var masterBrightness: Float = 1
