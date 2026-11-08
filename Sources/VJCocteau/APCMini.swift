@@ -126,7 +126,7 @@ final class APCMini: ObservableObject {
                 case 4: controller.clock.tap()
                 case 5: controller.clock.downbeat()
                 case 6: controller.clock.quantize = controller.clock.quantize.next
-                default: break // 8 は Beat Detection の ON/OFF 用に予約
+                default: controller.detector.toggle()
                 }
             } else {
                 controller.toggleLayer(index)
@@ -252,6 +252,7 @@ final class APCMini: ObservableObject {
                 case 4: velocity = beat.phase < 0.2 ? 1 : 0
                 case 5: velocity = beat.index == 0 && beat.phase < 0.2 ? 1 : 0
                 case 6: velocity = UInt8(controller.clock.quantize.rawValue) // なし 0 / 1拍 1 / 1小節 2
+                case 7: velocity = !controller.detector.isEnabled ? 0 : (controller.detector.isLocked ? 1 : 2) // 拍を取れていなければ点滅
                 default: velocity = 0
                 }
             } else {

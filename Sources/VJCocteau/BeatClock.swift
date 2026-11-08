@@ -43,6 +43,8 @@ final class BeatClock: ObservableObject {
     /// 拍の位置が 0 になる時刻です(CACurrentMediaTime の秒)。
     private var anchor = CACurrentMediaTime()
     private var taps: [Double] = []
+    /// 手で BPM や拍を合わせたときに呼ばれます(Beat Detection を止めるために使います)。
+    var onManualChange: (() -> Void)?
 
     init() {
         let saved = UserDefaults.standard.double(forKey: Self.bpmKey)
@@ -70,6 +72,7 @@ final class BeatClock: ObservableObject {
 
     /// BPM を変えます。いまの拍の位置は変わりません。
     func setBPM(_ value: Double) {
+        onManualChange?()
         let now = CACurrentMediaTime()
         let p = position(at: now)
         store(value)
@@ -82,6 +85,7 @@ final class BeatClock: ObservableObject {
     /// 叩いた間隔から BPM を決め、拍の位置を叩いたタイミングに合わせます。小節の中の位置は保ちます。
     /// 2秒以上あいたら、叩き直しとして扱います。
     func tap() {
+        onManualChange?()
         let now = CACurrentMediaTime()
         if let last = taps.last, now - last > 2 { taps.removeAll() }
         taps.append(now)
@@ -91,6 +95,18 @@ final class BeatClock: ObservableObject {
         }
         let p = position(at: now)
         anchor += (p - p.rounded()) * beatDuration
+    }
+
+    /// Beat Detection の結果に合わせます。gain は、検出値へどれだけ近づけるかです(1 で一気に合わせます)。
+    func follow(bpm target: Double, beatTime: Double, bpmGain: Double, phaseGain: Double) {
+        let now = CACurrentMediaTime()
+        if abs(target - bpm) > 0.05 {
+            let p = position(at: now)
+            store(bpm + (target - bpm) * bpmGain)
+            anchor = now - p * beatDuration
+        }
+        let p = position(at: beatTime)
+        anchor += (p - p.rounded()) * beatDuration * phaseGain
     }
 
     /// 次の Launch Quantize の境目の時刻です。なしなら、いまです。

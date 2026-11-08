@@ -159,7 +159,7 @@ struct ControlView: View {
         VStack(alignment: .leading, spacing: 14) {
             header
             crossfaderPanel
-            BeatPanel(clock: controller.clock)
+            BeatPanel(clock: controller.clock, detector: controller.detector)
             outputPanel
             bankLibraryPanel
             clipMatrixPanel
@@ -625,6 +625,7 @@ private struct ParamControl: View {
 /// Beat Clock の操作パネルです。BPM、Tap Tempo、Downbeat、Launch Quantize を操作します。
 private struct BeatPanel: View {
     @ObservedObject var clock: BeatClock
+    @ObservedObject var detector: BeatDetector
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
@@ -649,6 +650,10 @@ private struct BeatPanel: View {
                     .help("叩いた間隔で BPM を決めます(キー: t)")
                 Button("DOWNBEAT") { clock.downbeat() }.buttonStyle(PillButtonStyle(tint: Theme.bankB))
                     .help("いまを小節の頭にします(キー: d)")
+                Button("AUTO") { detector.toggle() }
+                    .buttonStyle(PillButtonStyle(tint: detector.isEnabled && !detector.isLocked ? Color.orange : Theme.bankA,
+                                                 active: detector.isEnabled))
+                    .help("音声から BPM を自動で検出します(キー: g)。手で BPM を合わせると止まります")
                 Spacer()
                 Caption("Launch Quantize")
                 ForEach(LaunchQuantize.allCases, id: \.self) { mode in
@@ -656,8 +661,44 @@ private struct BeatPanel: View {
                         .buttonStyle(PillButtonStyle(tint: Theme.bankA, active: clock.quantize == mode))
                 }
             }
+            HStack(spacing: 8) {
+                Caption("Audio In")
+                Picker("", selection: Binding(get: { detector.selectedUID ?? "" }, set: { detector.select(uid: $0.isEmpty ? nil : $0) })) {
+                    Text("システムの既定").tag("")
+                    ForEach(detector.devices) { Text($0.name).tag($0.uid) }
+                }
+                .labelsHidden().frame(width: 220)
+                GeometryReader { geo in
+                    ZStack(alignment: .leading) {
+                        Capsule().fill(Color.white.opacity(0.07))
+                        Capsule().fill(Theme.bankA).frame(width: max(0, CGFloat(detector.level)) * geo.size.width)
+                    }
+                }
+                .frame(height: 6)
+                Text(statusText).font(.system(size: 10, design: .monospaced)).foregroundStyle(statusColor)
+                    .frame(width: 150, alignment: .trailing).lineLimit(1)
+            }
         }
         .panel()
+    }
+}
+
+extension BeatPanel {
+    fileprivate var statusText: String {
+        switch detector.status {
+        case .off: return "自動検出 OFF"
+        case .starting: return "起動中…"
+        case .running: return detector.isLocked ? "拍を検出中" : "拍を探しています…"
+        case .denied: return "マイクの許可が必要です"
+        case .failed(let message): return message
+        }
+    }
+    fileprivate var statusColor: Color {
+        switch detector.status {
+        case .denied, .failed: return Color.orange
+        case .running: return detector.isLocked ? Theme.bankA : Theme.dim
+        default: return Theme.dim
+        }
     }
 }
 

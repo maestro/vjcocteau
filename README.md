@@ -6,7 +6,7 @@ A native macOS VJ application. Switch, layer and (soon) process live video from 
 
 Built with Swift, Metal, AVFoundation and CoreMIDI. Designed around the Akai Professional **APC mini MK2**.
 
-> **Status: early development.** Stages 1–5 (tap tempo) are implemented (see [Roadmap](#roadmap)). The APC mini MK2 integration has been tested only against a simulated MIDI device, **not yet on real hardware**.
+> **Status: early development.** Stages 1–5 are implemented (see [Roadmap](#roadmap)). The APC mini MK2 integration has been tested only against a simulated MIDI device, **not yet on real hardware**.
 
 ## Features
 
@@ -21,7 +21,9 @@ Built with Swift, Metal, AVFoundation and CoreMIDI. Designed around the Akai Pro
 
 - **Beat Clock** — set the BPM by tap tempo or by hand. Clip ON, Cut and Bank swaps wait for the next beat (Launch Quantize: none / 1 beat / 1 bar). Effects can read the beat position as `p.beat` (see the Beat Pulse Effect).
 
-Planned: automatic beat detection from live audio, and Set save/load. See [Roadmap](#roadmap).
+- **Beat Detection** — pick an audio input (for example an interface fed from the venue mixer) and the app follows its tempo and beat position from the low-frequency onsets. Downbeats stay manual, and tapping or typing a BPM switches detection off. macOS asks for microphone access the first time (when started from a terminal, the permission may be asked of the terminal app instead).
+
+Planned: Set save/load. See [Roadmap](#roadmap).
 
 ## Requirements
 
@@ -71,7 +73,7 @@ On first launch the Output Window goes to the first non-built-in display, or to 
 | `Shift` + bottom 1 / 2 | Edit Deck A / B |
 | `Shift` + bottom 3 / 4 | Cut to Deck A / B |
 | `Shift` + right 1–4 | Select Bank page (01–08, 09–16, 17–24, 25–32) |
-| `Shift` + bottom 5 / 6 / 7 | Tap Tempo / Downbeat / cycle Launch Quantize |
+| `Shift` + bottom 5 / 6 / 7 / 8 | Tap Tempo / Downbeat / cycle Launch Quantize / Beat Detection on-off |
 | `Shift` + fader 9 | Master brightness |
 
 Faders use Pickup: a fader is ignored until it reaches the current on-screen value. The control window shows a yellow ring at the physical position while a fader is waiting. See [docs/controller-layout.md](docs/controller-layout.md) for LED behavior and the MIDI map.
@@ -132,7 +134,7 @@ All documents are available in English and Japanese (`*.ja.md`).
 - [x] 2. Layer compositing and Blend Modes, control UI
 - [x] 3. APC mini MK2 input/output, Clip Matrix, Bank Library and Decks
 - [x] 4. Effects as Metal shader files with parameter declarations, hot-reload
-- [ ] 5. Beat Clock: tap tempo, then beat detection from audio input; quantized launches
+- [x] 5. Beat Clock: tap tempo, beat detection from audio input, quantized launches
 - [ ] 6. Save and load a Set (all 32 Banks)
 
 ## License

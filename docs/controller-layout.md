@@ -18,7 +18,7 @@ Source: Akai Professional, "APC mini mk2 Communications Protocol v1.0". Not yet 
 | `Shift` + track button 5 | Tap Tempo (a gap of 2 s or more starts a new tap series) |
 | `Shift` + track button 6 | Downbeat (the moment of the press becomes the start of the bar) |
 | `Shift` + track button 7 | Cycle Launch Quantize (none → 1 beat → 1 bar) |
-| `Shift` + track button 8 | Reserved for toggling Beat Detection |
+| `Shift` + track button 8 | Beat Detection on/off |
 | `Shift` + scene buttons 1–4 | Select the Bank page (01–08, 09–16, 17–24, 25–32) |
 | `Shift` + fader 9 | Master brightness |
 
@@ -29,7 +29,7 @@ All faders use Pickup: the value does not change until the physical position rea
 | Place | Display |
 |---|---|
 | Pads | A pad waiting for the next beat blinks (MIDI channel 12, unverified on hardware). Off when nothing is assigned, dim (25%) when OFF, bright (100%) when ON. Columns whose Layer is OFF are dimmer still (10%). Color: blue for Deck A, magenta for Deck B. |
-| Track buttons (red) | Lit when the Layer is ON. While `Shift` is held, the Edit Deck (1, 2) is lit and Cut (3, 4) is lit only while pressed (blinking while waiting for the next beat). Buttons 5–7 show the beat flash, the bar-start flash and the Launch Quantize state (off / lit / blinking). |
+| Track buttons (red) | Lit when the Layer is ON. While `Shift` is held, the Edit Deck (1, 2) is lit and Cut (3, 4) is lit only while pressed (blinking while waiting for the next beat). Buttons 5–8 show the beat flash, the bar-start flash, the Launch Quantize state (off / lit / blinking) and Beat Detection (off / locked / searching = blinking). |
 | Scene buttons (green) | Lit for a Bank loaded in a Deck, blinking while loading. While `Shift` is held, the current page (1–4) is lit. |
 
 ## MIDI map (from the specification)

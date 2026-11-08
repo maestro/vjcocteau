@@ -124,6 +124,8 @@ addMenu("Beat") { menu in
     tap.target = controller; tap.keyEquivalentModifierMask = []
     let down = menu.addItem(withTitle: "Downbeat(いまを小節の頭にする)", action: #selector(AppController.setDownbeat(_:)), keyEquivalent: "d")
     down.target = controller; down.keyEquivalentModifierMask = []
+    let auto = menu.addItem(withTitle: "Beat Detection の ON/OFF", action: #selector(AppController.toggleDetection(_:)), keyEquivalent: "g")
+    auto.target = controller; auto.keyEquivalentModifierMask = []
     let quant = menu.addItem(withTitle: "Launch Quantize を切り替える", action: #selector(AppController.cycleQuantize(_:)), keyEquivalent: "q")
     quant.target = controller; quant.keyEquivalentModifierMask = []
 }

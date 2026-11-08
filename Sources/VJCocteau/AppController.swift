@@ -38,6 +38,7 @@ final class AppController: NSObject, NSMenuItemValidation, NSMenuDelegate, NSWin
     /// Cut の指示を受けて、次の拍を待っている先の Deck です。
     @Published private(set) var pendingCut: Int?
     var clock: BeatClock { renderer.clock }
+    private(set) lazy var detector = BeatDetector(clock: renderer.clock)
 
     /// Launch Quantize で待たせている操作です。
     private struct Pending { let key: AnyHashable; let time: Double; let action: () -> Void; let cleanup: () -> Void }
@@ -63,6 +64,11 @@ final class AppController: NSObject, NSMenuItemValidation, NSMenuDelegate, NSWin
         for slot in renderer.bankLibrary.flatMap({ $0.slots }) {
             slot.objectWillChange.sink { refreshTitle() }.store(in: &cancellables)
         }
+        // 手で BPM や拍を合わせたら、自動検出は止めます。
+        clock.onManualChange = { [weak self] in
+            DispatchQueue.main.async { if self?.detector.isEnabled == true { self?.detector.stop() } }
+        }
+        detector.objectWillChange.sink { [weak self] in DispatchQueue.main.async { self?.objectWillChange.send() } }.store(in: &cancellables)
         renderer.onFrame = { [weak self] in self?.runDue() }
         clock.objectWillChange.sink { [weak self] in DispatchQueue.main.async { self?.objectWillChange.send() } }.store(in: &cancellables)
         NotificationCenter.default.addObserver(
@@ -277,6 +283,7 @@ final class AppController: NSObject, NSMenuItemValidation, NSMenuDelegate, NSWin
     @objc func toggleEditClip(_ sender: Any?) { toggleSlot(layer: editLayer, slot: editSlot) }
     @objc func tapTempo(_ sender: Any?) { clock.tap() }
     @objc func setDownbeat(_ sender: Any?) { clock.downbeat() }
+    @objc func toggleDetection(_ sender: Any?) { detector.toggle() }
     @objc func cycleQuantize(_ sender: Any?) { clock.quantize = clock.quantize.next }
 
     func validateMenuItem(_ item: NSMenuItem) -> Bool {
