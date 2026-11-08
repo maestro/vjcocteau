@@ -1,0 +1,6 @@
+{
+  "name": "Mirror",
+  "params": [
+    { "key": "mode", "label": "Mode", "type": "choice", "options": ["Horizontal", "Vertical", "Quad"], "default": 0 }
+  ]
+}

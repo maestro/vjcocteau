@@ -8,7 +8,7 @@ let package = Package(
         .executableTarget(
             name: "VJCocteau",
             path: "Sources/VJCocteau",
-            resources: [.copy("Shaders")]
+            resources: [.copy("Shaders"), .copy("Effects")]
         )
     ]
 )

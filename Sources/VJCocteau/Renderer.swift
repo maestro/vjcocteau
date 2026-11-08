@@ -44,12 +44,15 @@ private struct MixUniforms {
     var brightness: Float
 }
 
+private struct CompositeUniforms { var opacity: Float }
+
 private struct Uniforms {
     var viewAspect: Float
     var clipAspect: Float
     var fitMode: Int32
     var opacity: Float
     var blendMode: Int32
+    var layerTarget: Int32
 }
 
 /// Output Window に最終映像を描画するレンダラーです。
@@ -57,13 +60,21 @@ final class Renderer: NSObject, MTKViewDelegate {
     private let device: MTLDevice
     private let queue: MTLCommandQueue
     private let pipelines: [BlendMode: MTLRenderPipelineState]
+    /// Effect をかける Layer の中間テクスチャ(透明度つき)へ描くためのパイプラインです。
+    private let layerPipelines: [BlendMode: MTLRenderPipelineState]
+    private let compositePipeline: MTLRenderPipelineState
+    private let presentPipeline: MTLRenderPipelineState
     private let mixPipeline: MTLRenderPipelineState
+    let effectLibrary: EffectLibrary
+    /// 最終映像(Deck A/B を混ぜたあと)にかかる Effect Chain です。
+    let masterEffects = EffectChain()
+    private let startTime = CACurrentMediaTime()
     private weak var view: MTKView?
     /// 32個の Bank です。動画を開くのは、Deck にロードされた Bank だけです。
     let bankLibrary = (0..<Bank.count).map { Bank(index: $0) }
     let decks: [Deck]
-    /// 各 Deck の合成結果を一旦入れる画面外テクスチャです。
-    private var bankTextures: [MTLTexture?] = [nil, nil]
+    /// 画面外テクスチャです(Deck ごとの合成結果、Effect の入れ替え用、Layer 用、Master 用)。
+    private var textures: [String: MTLTexture] = [:]
     let settings = OutputSettings()
     var fitMode: FitMode { get { settings.fitMode } set { settings.fitMode = newValue } }
     var resolution: OutputResolution { get { settings.resolution } set { settings.resolution = newValue } }
@@ -80,36 +91,62 @@ final class Renderer: NSObject, MTKViewDelegate {
         self.view = view
 
         // Blend Mode ごとにブレンド係数の違うパイプラインを作ります。
-        var pipelines: [BlendMode: MTLRenderPipelineState] = [:]
-        for mode in BlendMode.allCases {
+        // Bank へ描くものは、透明度を保ちます。Layer の中間テクスチャへ描くものは、透明度も合成します。
+        func makePipelines(layerTarget: Bool) -> [BlendMode: MTLRenderPipelineState]? {
+            var result: [BlendMode: MTLRenderPipelineState] = [:]
+            for mode in BlendMode.allCases {
+                let descriptor = MTLRenderPipelineDescriptor()
+                descriptor.vertexFunction = library.makeFunction(name: "fullscreen_vertex")
+                descriptor.fragmentFunction = library.makeFunction(name: "layer_fragment")
+                let color = descriptor.colorAttachments[0]!
+                color.pixelFormat = view.colorPixelFormat
+                color.isBlendingEnabled = true
+                color.rgbBlendOperation = .add
+                color.alphaBlendOperation = .add
+                switch mode {
+                case .normal:   color.sourceRGBBlendFactor = .sourceAlpha;      color.destinationRGBBlendFactor = .oneMinusSourceAlpha
+                case .add:      color.sourceRGBBlendFactor = .sourceAlpha;      color.destinationRGBBlendFactor = .one
+                case .multiply: color.sourceRGBBlendFactor = .destinationColor; color.destinationRGBBlendFactor = .zero
+                case .screen:   color.sourceRGBBlendFactor = .one;              color.destinationRGBBlendFactor = .oneMinusSourceColor
+                }
+                if !layerTarget {
+                    color.sourceAlphaBlendFactor = .zero; color.destinationAlphaBlendFactor = .one
+                } else if mode == .multiply {
+                    color.sourceAlphaBlendFactor = .zero; color.destinationAlphaBlendFactor = .one
+                } else {
+                    color.sourceAlphaBlendFactor = .one; color.destinationAlphaBlendFactor = .oneMinusSourceAlpha
+                }
+                guard let pipeline = try? device.makeRenderPipelineState(descriptor: descriptor) else { return nil }
+                result[mode] = pipeline
+            }
+            return result
+        }
+        guard let bankPipelines = makePipelines(layerTarget: false),
+              let layerPipelines = makePipelines(layerTarget: true) else { return nil }
+        self.pipelines = bankPipelines
+        self.layerPipelines = layerPipelines
+
+        func makeSimple(_ fragment: String, blend: Bool = false) -> MTLRenderPipelineState? {
             let descriptor = MTLRenderPipelineDescriptor()
             descriptor.vertexFunction = library.makeFunction(name: "fullscreen_vertex")
-            descriptor.fragmentFunction = library.makeFunction(name: "layer_fragment")
+            descriptor.fragmentFunction = library.makeFunction(name: fragment)
             let color = descriptor.colorAttachments[0]!
             color.pixelFormat = view.colorPixelFormat
-            color.isBlendingEnabled = true
-            color.rgbBlendOperation = .add
-            color.alphaBlendOperation = .add
-            color.sourceAlphaBlendFactor = .one
-            color.destinationAlphaBlendFactor = .zero
-            switch mode {
-            case .normal:   color.sourceRGBBlendFactor = .sourceAlpha;      color.destinationRGBBlendFactor = .oneMinusSourceAlpha
-            case .add:      color.sourceRGBBlendFactor = .sourceAlpha;      color.destinationRGBBlendFactor = .one
-            case .multiply: color.sourceRGBBlendFactor = .destinationColor; color.destinationRGBBlendFactor = .zero
-            case .screen:   color.sourceRGBBlendFactor = .one;              color.destinationRGBBlendFactor = .oneMinusSourceColor
+            if blend {
+                // 透明度を掛けた色を、Bank の上にそのまま重ねます(Bank の透明度は保ちます)。
+                color.isBlendingEnabled = true
+                color.sourceRGBBlendFactor = .one; color.destinationRGBBlendFactor = .oneMinusSourceAlpha
+                color.sourceAlphaBlendFactor = .zero; color.destinationAlphaBlendFactor = .one
             }
-            guard let pipeline = try? device.makeRenderPipelineState(descriptor: descriptor) else { return nil }
-            pipelines[mode] = pipeline
+            return try? device.makeRenderPipelineState(descriptor: descriptor)
         }
-        self.pipelines = pipelines
-
-        // Deck A と B を混ぜて画面へ出すパイプラインです(ブレンドなし)。
-        let mixDescriptor = MTLRenderPipelineDescriptor()
-        mixDescriptor.vertexFunction = library.makeFunction(name: "fullscreen_vertex")
-        mixDescriptor.fragmentFunction = library.makeFunction(name: "mix_fragment")
-        mixDescriptor.colorAttachments[0].pixelFormat = view.colorPixelFormat
-        guard let mixPipeline = try? device.makeRenderPipelineState(descriptor: mixDescriptor) else { return nil }
+        guard let mixPipeline = makeSimple("mix_fragment"),
+              let compositePipeline = makeSimple("composite_fragment", blend: true),
+              let presentPipeline = makeSimple("present_fragment") else { return nil }
         self.mixPipeline = mixPipeline
+        self.compositePipeline = compositePipeline
+        self.presentPipeline = presentPipeline
+        effectLibrary = EffectLibrary(device: device, pixelFormat: view.colorPixelFormat)
 
         // 起動時は Deck A に Bank 01、Deck B に Bank 02 をロードしておきます。
         decks = [Deck(name: "A", bank: bankLibrary[0]), Deck(name: "B", bank: bankLibrary[1])]
@@ -152,73 +189,165 @@ final class Renderer: NSObject, MTKViewDelegate {
         return true
     }
 
-    /// 描画サイズに合わせて Deck 用の画面外テクスチャを用意します。
-    private func ensureBankTextures(size: CGSize) {
+    /// 描画サイズに合わせて、画面外テクスチャを用意します。
+    private func ensureTextures(size: CGSize) {
         let width = Int(size.width), height = Int(size.height)
         guard width > 0, height > 0 else { return }
-        for i in bankTextures.indices {
-            if let t = bankTextures[i], t.width == width, t.height == height { continue }
+        let keys = ["bank0", "bank1", "bankS0", "bankS1", "layer", "layerS", "mix", "mixS"]
+        for key in keys {
+            if let t = textures[key], t.width == width, t.height == height { continue }
             let descriptor = MTLTextureDescriptor.texture2DDescriptor(
                 pixelFormat: view?.colorPixelFormat ?? .bgra8Unorm, width: width, height: height, mipmapped: false)
             descriptor.usage = [.renderTarget, .shaderRead]
             descriptor.storageMode = .private
-            bankTextures[i] = device.makeTexture(descriptor: descriptor)
+            textures[key] = device.makeTexture(descriptor: descriptor)
         }
     }
 
-    /// 1つの Bank の Clip を、Layer 1 から順に、Layer の中ではスロット番号順に重ねて描画します。
-    private func drawLayers(of bank: Bank, with encoder: MTLRenderCommandEncoder, viewAspect: Float) {
-        for layer in bank.layers where layer.isEnabled && layer.opacity > 0 {
-            for slot in layer.slots where slot.isOn {
-                guard let texture = slot.clip?.currentTexture(),
-                      let pipeline = pipelines[slot.blendMode] else { continue }
-                var uniforms = Uniforms(
-                    viewAspect: viewAspect,
-                    clipAspect: Float(texture.width) / Float(max(texture.height, 1)),
-                    fitMode: fitMode.rawValue,
-                    opacity: slot.opacity * layer.opacity,
-                    blendMode: slot.blendMode.rawValue)
-                encoder.setRenderPipelineState(pipeline)
-                encoder.setFragmentTexture(texture, index: 0)
-                encoder.setFragmentBytes(&uniforms, length: MemoryLayout<Uniforms>.stride, index: 0)
-                encoder.drawPrimitives(type: .triangle, vertexStart: 0, vertexCount: 3)
-            }
+    /// 1つの Layer の ON の Clip を、スロット番号順に重ねて描画します。
+    private func drawSlots(of layer: Layer, opacity: Float, pipelines: [BlendMode: MTLRenderPipelineState],
+                           layerTarget: Bool, with encoder: MTLRenderCommandEncoder, viewAspect: Float) {
+        for slot in layer.slots where slot.isOn {
+            guard let texture = slot.clip?.currentTexture(),
+                  let pipeline = pipelines[slot.blendMode] else { continue }
+            var uniforms = Uniforms(
+                viewAspect: viewAspect,
+                clipAspect: Float(texture.width) / Float(max(texture.height, 1)),
+                fitMode: fitMode.rawValue,
+                opacity: slot.opacity * opacity,
+                blendMode: slot.blendMode.rawValue,
+                layerTarget: layerTarget ? 1 : 0)
+            encoder.setRenderPipelineState(pipeline)
+            encoder.setFragmentTexture(texture, index: 0)
+            encoder.setFragmentBytes(&uniforms, length: MemoryLayout<Uniforms>.stride, index: 0)
+            encoder.drawPrimitives(type: .triangle, vertexStart: 0, vertexCount: 3)
         }
+    }
+
+    /// Chain のうち、ON で、読み込みに成功している Effect だけを返します。
+    private func activeEffects(_ chain: EffectChain) -> [(EffectInstance, EffectDefinition)] {
+        chain.items.compactMap { item in
+            guard item.isOn, let def = effectLibrary.definition(for: item.effectID) else { return nil }
+            return (item, def)
+        }
+    }
+
+    /// Effect を順にかけます。2枚のテクスチャを行き来し、結果が入ったほうを返します。
+    private func applyChain(_ effects: [(EffectInstance, EffectDefinition)], source: MTLTexture, scratch: MTLTexture,
+                            buffer: MTLCommandBuffer) -> MTLTexture {
+        var from = source, to = scratch
+        let time = Float(CACurrentMediaTime() - startTime)
+        for (instance, definition) in effects {
+            let pass = MTLRenderPassDescriptor()
+            pass.colorAttachments[0].texture = to
+            pass.colorAttachments[0].loadAction = .dontCare
+            pass.colorAttachments[0].storeAction = .store
+            guard let encoder = buffer.makeRenderCommandEncoder(descriptor: pass) else { continue }
+            let width = Float(to.width), height = Float(to.height)
+            var values: [Float] = [time, width / max(height, 1), width, height] + instance.packed(for: definition)
+            encoder.setRenderPipelineState(definition.pipeline)
+            encoder.setFragmentTexture(from, index: 0)
+            encoder.setFragmentBytes(&values, length: values.count * MemoryLayout<Float>.stride, index: 0)
+            encoder.drawPrimitives(type: .triangle, vertexStart: 0, vertexCount: 3)
+            encoder.endEncoding()
+            swap(&from, &to)
+        }
+        return from
+    }
+
+    /// 1つの Bank を、Layer 1 から順に合成し、Layer と Bank の Effect をかけて、結果のテクスチャを返します。
+    private func render(bank: Bank, deckIndex: Int, buffer: MTLCommandBuffer, viewAspect: Float) -> MTLTexture? {
+        guard let target = textures["bank\(deckIndex)"], let bankScratch = textures["bankS\(deckIndex)"],
+              let layerTexture = textures["layer"], let layerScratch = textures["layerS"] else { return nil }
+        var encoder: MTLRenderCommandEncoder?
+        var cleared = false
+        /// Bank への描画を始めます(途中で Layer の中間描画を挟むと、閉じて、続きから開き直します)。
+        func bankEncoder() -> MTLRenderCommandEncoder? {
+            if let encoder { return encoder }
+            let pass = MTLRenderPassDescriptor()
+            pass.colorAttachments[0].texture = target
+            pass.colorAttachments[0].loadAction = cleared ? .load : .clear
+            pass.colorAttachments[0].clearColor = MTLClearColor(red: 0, green: 0, blue: 0, alpha: 1)
+            pass.colorAttachments[0].storeAction = .store
+            cleared = true
+            encoder = buffer.makeRenderCommandEncoder(descriptor: pass)
+            return encoder
+        }
+        for layer in bank.layers where layer.isEnabled && layer.opacity > 0 {
+            let effects = activeEffects(layer.effects)
+            if effects.isEmpty {
+                guard let e = bankEncoder() else { continue }
+                drawSlots(of: layer, opacity: layer.opacity, pipelines: pipelines, layerTarget: false, with: e, viewAspect: viewAspect)
+                continue
+            }
+            guard layer.slots.contains(where: { $0.isOn }) else { continue }
+            // Effect あり: Layer の中で合成 → Effect → Bank へ Normal で重ねる
+            encoder?.endEncoding(); encoder = nil
+            let pass = MTLRenderPassDescriptor()
+            pass.colorAttachments[0].texture = layerTexture
+            pass.colorAttachments[0].loadAction = .clear
+            pass.colorAttachments[0].clearColor = MTLClearColor(red: 0, green: 0, blue: 0, alpha: 0)
+            pass.colorAttachments[0].storeAction = .store
+            guard let layerEncoder = buffer.makeRenderCommandEncoder(descriptor: pass) else { continue }
+            drawSlots(of: layer, opacity: 1, pipelines: layerPipelines, layerTarget: true, with: layerEncoder, viewAspect: viewAspect)
+            layerEncoder.endEncoding()
+            let result = applyChain(effects, source: layerTexture, scratch: layerScratch, buffer: buffer)
+            guard let e = bankEncoder() else { continue }
+            var uniforms = CompositeUniforms(opacity: layer.opacity)
+            e.setRenderPipelineState(compositePipeline)
+            e.setFragmentTexture(result, index: 0)
+            e.setFragmentBytes(&uniforms, length: MemoryLayout<CompositeUniforms>.stride, index: 0)
+            e.drawPrimitives(type: .triangle, vertexStart: 0, vertexCount: 3)
+        }
+        _ = bankEncoder() // 何も描かなくても、背景の黒で塗りつぶします
+        encoder?.endEncoding()
+        return applyChain(activeEffects(bank.effects), source: target, scratch: bankScratch, buffer: buffer)
     }
 
     func draw(in view: MTKView) {
         applyResolution(to: view)
         // ロード中の Bank が準備できていれば入れ替えます(拍への同期は段階5で入れます)。
         for deck in decks { deck.commitIfReady() }
-        ensureBankTextures(size: view.drawableSize)
+        ensureTextures(size: view.drawableSize)
         guard let buffer = queue.makeCommandBuffer(),
-              let textureA = bankTextures[0], let textureB = bankTextures[1] else { return }
+              let fallbackA = textures["bank0"], let fallbackB = textures["bank1"],
+              let mixTexture = textures["mix"], let mixScratch = textures["mixS"] else { return }
 
         let mix = min(max(settings.crossfader, 0), 1)
         let weights = [1 - mix, mix]
         let viewAspect = Float(view.drawableSize.width / max(view.drawableSize.height, 1))
 
         // 見えている Bank だけ描画します。見えない Bank も動画の再生は止めません。
+        var results = [fallbackA, fallbackB]
         for (index, deck) in decks.enumerated() where weights[index] > 0 {
-            let pass = MTLRenderPassDescriptor()
-            pass.colorAttachments[0].texture = bankTextures[index]
-            pass.colorAttachments[0].loadAction = .clear
-            pass.colorAttachments[0].clearColor = MTLClearColor(red: 0, green: 0, blue: 0, alpha: 1)
-            pass.colorAttachments[0].storeAction = .store
-            guard let encoder = buffer.makeRenderCommandEncoder(descriptor: pass) else { continue }
-            drawLayers(of: deck.bank, with: encoder, viewAspect: viewAspect)
-            encoder.endEncoding()
+            if let result = render(bank: deck.bank, deckIndex: index, buffer: buffer, viewAspect: viewAspect) {
+                results[index] = result
+            }
         }
 
+        // Deck A と B を混ぜます。
+        let mixPass = MTLRenderPassDescriptor()
+        mixPass.colorAttachments[0].texture = mixTexture
+        mixPass.colorAttachments[0].loadAction = .dontCare
+        mixPass.colorAttachments[0].storeAction = .store
+        if let encoder = buffer.makeRenderCommandEncoder(descriptor: mixPass) {
+            var uniforms = MixUniforms(weightA: weights[0], weightB: weights[1], brightness: 1)
+            encoder.setRenderPipelineState(mixPipeline)
+            encoder.setFragmentTexture(results[0], index: 0)
+            encoder.setFragmentTexture(results[1], index: 1)
+            encoder.setFragmentBytes(&uniforms, length: MemoryLayout<MixUniforms>.stride, index: 0)
+            encoder.drawPrimitives(type: .triangle, vertexStart: 0, vertexCount: 3)
+            encoder.endEncoding()
+        }
+        // Master の Effect → Master の明るさ → 画面
+        let final = applyChain(activeEffects(masterEffects), source: mixTexture, scratch: mixScratch, buffer: buffer)
         guard let pass = view.currentRenderPassDescriptor,
               let drawable = view.currentDrawable,
               let encoder = buffer.makeRenderCommandEncoder(descriptor: pass) else { return }
-        var uniforms = MixUniforms(weightA: weights[0], weightB: weights[1],
-                                   brightness: min(max(settings.masterBrightness, 0), 1))
-        encoder.setRenderPipelineState(mixPipeline)
-        encoder.setFragmentTexture(textureA, index: 0)
-        encoder.setFragmentTexture(textureB, index: 1)
-        encoder.setFragmentBytes(&uniforms, length: MemoryLayout<MixUniforms>.stride, index: 0)
+        var brightness = min(max(settings.masterBrightness, 0), 1)
+        encoder.setRenderPipelineState(presentPipeline)
+        encoder.setFragmentTexture(final, index: 0)
+        encoder.setFragmentBytes(&brightness, length: MemoryLayout<Float>.stride, index: 0)
         encoder.drawPrimitives(type: .triangle, vertexStart: 0, vertexCount: 3)
         encoder.endEncoding()
         buffer.present(drawable)

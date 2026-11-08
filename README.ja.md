@@ -6,7 +6,7 @@ Mac ネイティブの VJ ソフトウェアです。MIDI コントローラー�
 
 Swift、Metal、AVFoundation、CoreMIDI で作っています。Akai Professional の **APC mini MK2** を前提に設計しています。
 
-> **ステータス: 開発の初期段階です。** 段階1〜3を実装済みです([ロードマップ](#ロードマップ)を参照)。APC mini MK2 との連携は、疑似の MIDI 機器でだけ検証していて、**実機ではまだ試していません**。
+> **ステータス: 開発の初期段階です。** 段階1〜4を実装済みです([ロードマップ](#ロードマップ)を参照)。APC mini MK2 との連携は、疑似の MIDI 機器でだけ検証していて、**実機ではまだ試していません**。
 
 ## 特長
 
@@ -17,7 +17,9 @@ Swift、Metal、AVFoundation、CoreMIDI で作っています。Akai Professiona
 - **外部ディスプレイへの出力** — 出力先は UI から選べて、選択は保存されます。出力解像度(720p / 1080p / 4K / ウィンドウに合わせる)と Fit Mode(引き伸ばし / 黒帯 / 切り抜き)も変えられます。
 - **ダークテーマの操作画面** — Crossfader、Bank Library、Clip Matrix、Clip ごとの設定を、別ウィンドウで操作できます。
 
-予定: Metal シェーダーのファイルだけで追加できるモジュール式の Effect(ホットリロード対応)、ライブ音声からの BPM 同期、Set の保存・読込。[ロードマップ](#ロードマップ)を参照してください。
+- **モジュール式の Effect** — Metal シェーダーと、パラメータを宣言する JSON のフォルダを置くだけで、Effect を追加できます。ホットリロードにも対応します。Layer、Bank、Master の各 Chain に、最大4個ずつかけられます。[docs/effects.ja.md](docs/effects.ja.md) を参照してください。
+
+予定: ライブ音声からの BPM 同期、Set の保存・読込。[ロードマップ](#ロードマップ)を参照してください。
 
 ## 動作環境
 
@@ -117,6 +119,7 @@ GLOSSARY.ja.md          プロジェクトの用語集
 すべての文書を、英語と日本語(`*.ja.md`)で用意しています。
 
 - [GLOSSARY.ja.md](GLOSSARY.ja.md) — 用語集
+- [docs/effects.ja.md](docs/effects.ja.md) — 自作 Effect の書き方
 - [docs/controller-layout.ja.md](docs/controller-layout.ja.md) — APC mini MK2 の割り当てと MIDI の対応表
 - [docs/adr/](docs/adr/) — 設計判断の記録(ADR)
 
@@ -125,7 +128,7 @@ GLOSSARY.ja.md          プロジェクトの用語集
 - [x] 1. 動画 Clip を Output Window に出す
 - [x] 2. Layer の合成と Blend Mode、操作画面
 - [x] 3. APC mini MK2 の入出力、Clip Matrix、Bank Library と Deck
-- [ ] 4. Effect を Metal シェーダーのファイル + パラメータ宣言で追加できるようにする(ホットリロード)
+- [x] 4. Effect を Metal シェーダーのファイル + パラメータ宣言で追加できるようにする(ホットリロード)
 - [ ] 5. Beat Clock: タップテンポ、続いて音声入力からの Beat Detection、拍に揃えた切り替え
 - [ ] 6. Set(32個の Bank 全体)の保存と読込
 

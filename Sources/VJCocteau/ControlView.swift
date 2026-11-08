@@ -163,6 +163,7 @@ struct ControlView: View {
             bankLibraryPanel
             clipMatrixPanel
             editClipPanel
+            EffectsPanel(controller: controller, library: controller.renderer.effectLibrary)
         }
         .padding(18)
         .frame(width: 700)
@@ -464,5 +465,156 @@ private struct EditClipPanel: View {
                 .buttonStyle(.plain).foregroundStyle(Theme.dim).disabled(empty).help("Clip を外す")
         }
         .panel()
+    }
+}
+
+// MARK: - Effect
+
+/// Effect Chain の編集パネルです。Edit Layer、Edit Deck の Bank、Master のどれかを選んで編集します。
+private struct EffectsPanel: View {
+    enum Target: String, CaseIterable { case layer = "Layer", bank = "Bank", master = "Master" }
+
+    @ObservedObject var controller: AppController
+    @ObservedObject var library: EffectLibrary
+    @State private var target: Target = .layer
+
+    private var chain: EffectChain {
+        switch target {
+        case .layer: return controller.currentLayer.effects
+        case .bank: return controller.currentBank.effects
+        case .master: return controller.renderer.masterEffects
+        }
+    }
+
+    private var targetTitle: String {
+        switch target {
+        case .layer: return "Deck \(controller.currentDeck.name) · Layer \(controller.editLayer + 1)"
+        case .bank: return "Deck \(controller.currentDeck.name) · Bank \(controller.currentBank.name)"
+        case .master: return "Master"
+        }
+    }
+
+    var body: some View {
+        let tint = Theme.bank(controller.editDeck)
+        VStack(alignment: .leading, spacing: 8) {
+            HStack(spacing: 8) {
+                Caption("Effect — \(targetTitle)")
+                Spacer()
+                ForEach(Target.allCases, id: \.self) { item in
+                    Button(item.rawValue) { target = item }
+                        .buttonStyle(PillButtonStyle(tint: tint, active: target == item))
+                }
+                Button { NSWorkspace.shared.open(EffectLibrary.userFolder) } label: { Image(systemName: "folder") }
+                    .buttonStyle(.plain).foregroundStyle(Theme.dim).help("自作 Effect のフォルダを開く")
+            }
+            // Layer・Bank の切り替えで、別の Chain の表示に切り替わるよう、識別子を付けます。
+            EffectChainView(chain: chain, library: library, tint: tint)
+                .id("\(target.rawValue)-\(controller.editDeck)-\(controller.currentBank.index)-\(controller.editLayer)")
+            ForEach(library.errors.keys.sorted(), id: \.self) { key in
+                Text("⚠︎ \(key): \(library.errors[key] ?? "")")
+                    .font(.system(size: 10, design: .monospaced)).foregroundStyle(Color.orange)
+                    .lineLimit(2)
+            }
+        }
+        .panel()
+    }
+}
+
+private struct EffectChainView: View {
+    @ObservedObject var chain: EffectChain
+    @ObservedObject var library: EffectLibrary
+    let tint: Color
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            ForEach(chain.items) { item in
+                EffectRow(item: item, chain: chain, definition: library.definition(for: item.effectID), tint: tint)
+            }
+            Menu {
+                ForEach(library.definitions, id: \.id) { def in
+                    Button(def.name) { chain.add(def.id) }
+                }
+            } label: {
+                Text(chain.items.count >= EffectChain.maxCount ? "満杯(最大 \(EffectChain.maxCount) 個)" : "+ Effect を追加")
+                    .font(.system(size: 11, weight: .bold, design: .monospaced))
+            }
+            .menuStyle(.button).buttonStyle(PillButtonStyle(tint: Theme.dim))
+            .menuIndicator(.hidden)
+            .disabled(chain.items.count >= EffectChain.maxCount)
+        }
+    }
+}
+
+/// Chain の1行(1つの Effect)です。ON/OFF、順番の入れ替え、削除、パラメータの調整ができます。
+private struct EffectRow: View {
+    @ObservedObject var item: EffectInstance
+    let chain: EffectChain
+    let definition: EffectDefinition?
+    let tint: Color
+
+    var body: some View {
+        HStack(alignment: .center, spacing: 10) {
+            Button { item.isOn.toggle() } label: {
+                Text(definition?.name ?? item.effectID)
+                    .font(.system(size: 11, weight: .bold, design: .monospaced))
+                    .frame(width: 96)
+            }
+            .buttonStyle(PillButtonStyle(tint: definition == nil ? Color.orange : tint, active: item.isOn && definition != nil))
+            if let definition {
+                ForEach(definition.params, id: \.key) { param in
+                    ParamControl(item: item, param: param, tint: tint)
+                }
+            } else {
+                Text("見つかりません").font(.system(size: 10, design: .monospaced)).foregroundStyle(Color.orange)
+            }
+            Spacer(minLength: 0)
+            Button { chain.move(item, by: -1) } label: { Image(systemName: "chevron.up") }
+                .buttonStyle(.plain).foregroundStyle(Theme.dim).help("前へ")
+            Button { chain.move(item, by: 1) } label: { Image(systemName: "chevron.down") }
+                .buttonStyle(.plain).foregroundStyle(Theme.dim).help("後ろへ")
+            Button { chain.remove(item) } label: { Image(systemName: "xmark") }
+                .buttonStyle(.plain).foregroundStyle(Theme.dim).help("外す")
+        }
+    }
+}
+
+/// パラメータ1つ分の操作部品です。種類ごとに、スライダー・スイッチ・色・選択肢になります。
+private struct ParamControl: View {
+    @ObservedObject var item: EffectInstance
+    let param: EffectParam
+    let tint: Color
+
+    var body: some View {
+        let current = item.value(of: param)
+        HStack(spacing: 5) {
+            Text(param.label).font(.system(size: 9, design: .monospaced)).foregroundStyle(Theme.dim)
+            switch param.kind {
+            case .float:
+                NeonSlider(
+                    value: Binding(
+                        get: { Double((current[0] - param.min) / max(param.max - param.min, 0.0001)) },
+                        set: { item.values[param.key] = [param.min + Float($0) * (param.max - param.min)] }),
+                    fill: AnyShapeStyle(tint), glow: tint)
+                    .frame(width: 70)
+            case .bool:
+                Toggle("", isOn: Binding(
+                    get: { current[0] > 0.5 }, set: { item.values[param.key] = [$0 ? 1 : 0] }))
+                    .labelsHidden().toggleStyle(.switch).controlSize(.mini)
+            case .color:
+                ColorPicker("", selection: Binding(
+                    get: { Color(red: Double(current[0]), green: Double(current[1]), blue: Double(current[2])) },
+                    set: { color in
+                        let ns = NSColor(color).usingColorSpace(.sRGB) ?? .white
+                        item.values[param.key] = [Float(ns.redComponent), Float(ns.greenComponent), Float(ns.blueComponent)]
+                    }))
+                    .labelsHidden()
+            case .choice(let options):
+                Picker("", selection: Binding(
+                    get: { Int(current[0]) }, set: { item.values[param.key] = [Float($0)] })) {
+                    ForEach(options.indices, id: \.self) { Text(options[$0]).tag($0) }
+                }
+                .labelsHidden().frame(width: 100)
+            }
+        }
     }
 }

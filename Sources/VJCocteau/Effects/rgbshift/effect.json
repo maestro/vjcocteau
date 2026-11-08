@@ -1,0 +1,7 @@
+{
+  "name": "RGB Shift",
+  "params": [
+    { "key": "amount", "label": "Amount", "type": "float", "default": 0.3, "min": 0, "max": 1 },
+    { "key": "angle", "label": "Angle", "type": "float", "default": 0, "min": 0, "max": 6.2832 }
+  ]
+}

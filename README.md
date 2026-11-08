@@ -6,7 +6,7 @@ A native macOS VJ application. Switch, layer and (soon) process live video from 
 
 Built with Swift, Metal, AVFoundation and CoreMIDI. Designed around the Akai Professional **APC mini MK2**.
 
-> **Status: early development.** Stages 1–3 are implemented (see [Roadmap](#roadmap)). The APC mini MK2 integration has been tested only against a simulated MIDI device, **not yet on real hardware**.
+> **Status: early development.** Stages 1–4 are implemented (see [Roadmap](#roadmap)). The APC mini MK2 integration has been tested only against a simulated MIDI device, **not yet on real hardware**.
 
 ## Features
 
@@ -17,7 +17,9 @@ Built with Swift, Metal, AVFoundation and CoreMIDI. Designed around the Akai Pro
 - **External display output** — pick the output display from the UI; the choice is remembered. Output resolution (720p / 1080p / 4K / follow window) and Fit Mode (stretch / letterbox / crop) are adjustable.
 - **Dark control window** — a separate control window with the Crossfader, Bank Library, Clip Matrix and per-Clip settings.
 
-Planned: modular Effects written as plain Metal shader files with hot-reload, BPM sync from live audio, and Set save/load. See [Roadmap](#roadmap).
+- **Modular Effects** — drop a folder with a Metal shader and a JSON parameter declaration to add an Effect, with hot-reload. Up to 4 Effects each on a Layer, a Bank, and the Master output. See [docs/effects.md](docs/effects.md).
+
+Planned: BPM sync from live audio and Set save/load. See [Roadmap](#roadmap).
 
 ## Requirements
 
@@ -117,6 +119,7 @@ GLOSSARY.md             project vocabulary
 All documents are available in English and Japanese (`*.ja.md`).
 
 - [GLOSSARY.md](GLOSSARY.md) — vocabulary
+- [docs/effects.md](docs/effects.md) — writing your own Effects
 - [docs/controller-layout.md](docs/controller-layout.md) — APC mini MK2 layout and MIDI map
 - [docs/adr/](docs/adr/) — architecture decision records
 
@@ -125,7 +128,7 @@ All documents are available in English and Japanese (`*.ja.md`).
 - [x] 1. Play a video clip in the Output Window
 - [x] 2. Layer compositing and Blend Modes, control UI
 - [x] 3. APC mini MK2 input/output, Clip Matrix, Bank Library and Decks
-- [ ] 4. Effects as Metal shader files with parameter declarations, hot-reload
+- [x] 4. Effects as Metal shader files with parameter declarations, hot-reload
 - [ ] 5. Beat Clock: tap tempo, then beat detection from audio input; quantized launches
 - [ ] 6. Save and load a Set (all 32 Banks)
 

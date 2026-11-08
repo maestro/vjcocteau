@@ -14,6 +14,7 @@ struct Uniforms {
     int fitMode;
     float opacity;
     int blendMode;
+    int layerTarget; // 1: Layer 用の中間テクスチャ(透明度つき)へ描く
 };
 
 // 画面全体を覆う1枚の三角形を描画します。
@@ -46,7 +47,7 @@ fragment float4 layer_fragment(VertexOut in [[stage_in]],
 
     switch (u.blendMode) {
     case 2:  return float4(mix(float3(1.0), src, a), 1.0); // Multiply: dst * out
-    case 3:  return float4(src * a, 1.0);                  // Screen: out + dst*(1-out)
+    case 3:  return float4(src * a, u.layerTarget != 0 ? a : 1.0); // Screen: out + dst*(1-out)
     default: return float4(src, a);                        // Normal / Add: 係数が alpha を使う
     }
 }
@@ -66,4 +67,24 @@ fragment float4 mix_fragment(VertexOut in [[stage_in]],
     float3 a = bankA.sample(s, in.uv).rgb;
     float3 b = bankB.sample(s, in.uv).rgb;
     return float4((a * u.weightA + b * u.weightB) * u.brightness, 1.0);
+}
+
+
+// Effect をかけた Layer の中間テクスチャ(透明度つき)を、Bank へ重ねます。
+struct CompositeUniforms { float opacity; };
+
+fragment float4 composite_fragment(VertexOut in [[stage_in]],
+                                   texture2d<float> layer [[texture(0)]],
+                                   constant CompositeUniforms &u [[buffer(0)]]) {
+    constexpr sampler s(filter::linear, address::clamp_to_edge);
+    float4 c = layer.sample(s, in.uv);
+    return c * u.opacity; // 透明度を掛けた色なので、そのまま重ねられます
+}
+
+// 最終映像に Master の明るさをかけて、画面へ出します。
+fragment float4 present_fragment(VertexOut in [[stage_in]],
+                                 texture2d<float> tex [[texture(0)]],
+                                 constant float &brightness [[buffer(0)]]) {
+    constexpr sampler s(filter::linear, address::clamp_to_edge);
+    return float4(tex.sample(s, in.uv).rgb * brightness, 1.0);
 }

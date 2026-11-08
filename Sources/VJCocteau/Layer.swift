@@ -78,6 +78,8 @@ final class Layer: ObservableObject {
     /// この Layer の全 Clip への不透明度の倍率です。
     @Published var opacity: Float = 1
     @Published var isEnabled = true
+    /// この Layer の映像にかかる Effect Chain です。
+    let effects = EffectChain()
 }
 
 /// 8本の Layer をまとめた1組です。Bank Library に32個あります。
@@ -86,6 +88,8 @@ final class Bank {
 
     let index: Int
     let layers = (0..<Layer.count).map { _ in Layer() }
+    /// この Bank の合成結果にかかる Effect Chain です。
+    let effects = EffectChain()
     /// Deck にロードされていて、動画を開いているかどうかです。
     private(set) var isActive = false
 

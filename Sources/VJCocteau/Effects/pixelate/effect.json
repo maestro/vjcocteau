@@ -1,0 +1,4 @@
+{
+  "name": "Pixelate",
+  "params": [ { "key": "size", "label": "Size", "type": "float", "default": 0.3, "min": 0, "max": 1 } ]
+}
