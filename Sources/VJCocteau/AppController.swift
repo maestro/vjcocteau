@@ -35,6 +35,13 @@ final class AppController: NSObject, NSMenuItemValidation, NSMenuDelegate, NSWin
     var currentLayer: Layer { currentBank.layers[editLayer] }
     var currentSlot: ClipSlot { currentLayer.slots[editSlot] }
     private var cancellables: [AnyCancellable] = []
+    /// Cut の指示を受けて、次の拍を待っている先の Deck です。
+    @Published private(set) var pendingCut: Int?
+    var clock: BeatClock { renderer.clock }
+
+    /// Launch Quantize で待たせている操作です。
+    private struct Pending { let key: AnyHashable; let time: Double; let action: () -> Void; let cleanup: () -> Void }
+    private var pending: [Pending] = []
 
     init(renderer: Renderer) {
         self.renderer = renderer
@@ -56,6 +63,8 @@ final class AppController: NSObject, NSMenuItemValidation, NSMenuDelegate, NSWin
         for slot in renderer.bankLibrary.flatMap({ $0.slots }) {
             slot.objectWillChange.sink { refreshTitle() }.store(in: &cancellables)
         }
+        renderer.onFrame = { [weak self] in self?.runDue() }
+        clock.objectWillChange.sink { [weak self] in DispatchQueue.main.async { self?.objectWillChange.send() } }.store(in: &cancellables)
         NotificationCenter.default.addObserver(
             forName: NSApplication.didChangeScreenParametersNotification, object: nil, queue: .main
         ) { [weak self] _ in self?.reapplyOutputFrame() }
@@ -83,13 +92,56 @@ final class AppController: NSObject, NSMenuItemValidation, NSMenuDelegate, NSWin
 
     // MARK: - 再生と切り替え
 
-    /// Crossfader を Deck A(0)または Deck B(1)の端へ一気に動かします。
-    func cut(to deck: Int) { renderer.settings.crossfader = deck == 0 ? 0 : 1 }
+    /// 操作を次の Launch Quantize の境目まで待たせます。待たせたら true を返します(なしなら、すぐ実行して false)。
+    /// 同じ key の待ちがあれば、取り消して置き換えます。
+    @discardableResult
+    private func schedule(key: AnyHashable, action: @escaping () -> Void, cleanup: @escaping () -> Void) -> Bool {
+        cancel(key)
+        let time = clock.launchTime()
+        if time <= CACurrentMediaTime() + 0.0005 { action(); return false }
+        pending.append(Pending(key: key, time: time, action: action, cleanup: cleanup))
+        return true
+    }
 
-    /// Edit Deck の Bank にある Clip の ON/OFF を切り替えます。
+    private func cancel(_ key: AnyHashable) {
+        let removed = pending.filter { $0.key == key }
+        pending.removeAll { $0.key == key }
+        removed.forEach { $0.cleanup() }
+    }
+
+    /// 時刻が来た操作を実行します。
+    private func runDue() {
+        let now = CACurrentMediaTime()
+        let due = pending.filter { $0.time <= now }
+        guard !due.isEmpty else { return }
+        pending.removeAll { $0.time <= now }
+        for item in due { item.action(); item.cleanup() }
+    }
+
+    /// Crossfader を Deck A(0)または Deck B(1)の端へ一気に動かします。次の拍(Launch Quantize)まで待ちます。
+    func cut(to deck: Int) {
+        let value: Float = deck == 0 ? 0 : 1
+        if schedule(key: "cut", action: { [weak self] in self?.renderer.settings.crossfader = value },
+                    cleanup: { [weak self] in self?.pendingCut = nil }) {
+            pendingCut = deck
+        }
+    }
+
+    /// Edit Deck の Bank にある Clip の ON/OFF を切り替えます。ON は次の拍まで待ち、OFF はすぐ反映します。
+    /// 待っている間にもう一度押すと、取り消します。
     func toggleSlot(layer: Int, slot: Int) {
         let target = currentBank.layers[layer].slots[slot]
-        target.setOn(!target.isOn)
+        let key = ObjectIdentifier(target)
+        if target.isOn {
+            cancel(key)
+            target.setOn(false)
+        } else if target.isPending {
+            cancel(key)
+        } else if target.clipURL != nil {
+            if schedule(key: key, action: { target.setOn(true) }, cleanup: { target.isPending = false }) {
+                target.isPending = true
+            }
+        }
     }
 
     func toggleLayer(_ index: Int) { currentBank.layers[index].isEnabled.toggle() }
@@ -108,7 +160,11 @@ final class AppController: NSObject, NSMenuItemValidation, NSMenuDelegate, NSWin
         bank.layers[layer].slots[slot].assign(url, device: renderer.metalDevice, open: bank.isActive)
     }
 
-    func clearClip(layer: Int, slot: Int) { currentBank.layers[layer].slots[slot].clear() }
+    func clearClip(layer: Int, slot: Int) {
+        let target = currentBank.layers[layer].slots[slot]
+        cancel(ObjectIdentifier(target))
+        target.clear()
+    }
 
     /// Edit Deck の Bank の指定スロットに読み込む動画を選びます。
     func chooseClip(layer: Int, slot: Int) {
@@ -218,7 +274,10 @@ final class AppController: NSObject, NSMenuItemValidation, NSMenuDelegate, NSWin
         currentSlot.opacity = min(max(currentSlot.opacity + Float(sender.tag) / 100, 0), 1)
     }
     @objc func cycleBlendMode(_ sender: Any?) { currentSlot.blendMode = currentSlot.blendMode.next }
-    @objc func toggleEditClip(_ sender: Any?) { currentSlot.setOn(!currentSlot.isOn) }
+    @objc func toggleEditClip(_ sender: Any?) { toggleSlot(layer: editLayer, slot: editSlot) }
+    @objc func tapTempo(_ sender: Any?) { clock.tap() }
+    @objc func setDownbeat(_ sender: Any?) { clock.downbeat() }
+    @objc func cycleQuantize(_ sender: Any?) { clock.quantize = clock.quantize.next }
 
     func validateMenuItem(_ item: NSMenuItem) -> Bool {
         switch item.action {

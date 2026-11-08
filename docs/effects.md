@@ -46,6 +46,7 @@ float4 effect_main(float2 uv, texture2d<float> tex, constant EffectParams &p) {
 
 - `sample_src(tex, uv)` reads the input as a straight (non-premultiplied) color.
 - Return a straight color. The host premultiplies it.
+- `p.beat` is the beat position (beats since the last Downbeat, fractional); `fract(p.beat)` is the progress within a beat. `p.bpm` is the tempo.
 - `p.time` is seconds since launch, `p.aspect` is width / height, `p.resolution` is the size in pixels.
 - Chain order is top to bottom. Only single-pass, stateless Effects are supported (see ADR-0001).
 

@@ -46,6 +46,7 @@ float4 effect_main(float2 uv, texture2d<float> tex, constant EffectParams &p) {
 
 - `sample_src(tex, uv)` は、入力を、透明度を分けた(premultiplied でない)色で読みます。
 - 返す色も、透明度を分けた色にします。本体が premultiplied にします。
+- `p.beat` は拍の位置(最後の Downbeat からの拍数、小数つき)です。`fract(p.beat)` が、拍の中の進み具合になります。`p.bpm` はテンポです。
 - `p.time` は起動からの秒数、`p.aspect` は 幅 / 高さ、`p.resolution` はピクセル単位の大きさです。
 - Chain は上から順にかかります。対応するのは、1パスでステートを持たない Effect だけです(ADR-0001 を参照)。
 

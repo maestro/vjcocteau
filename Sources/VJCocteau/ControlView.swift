@@ -159,6 +159,7 @@ struct ControlView: View {
         VStack(alignment: .leading, spacing: 14) {
             header
             crossfaderPanel
+            BeatPanel(clock: controller.clock)
             outputPanel
             bankLibraryPanel
             clipMatrixPanel
@@ -614,6 +615,68 @@ private struct ParamControl: View {
                     ForEach(options.indices, id: \.self) { Text(options[$0]).tag($0) }
                 }
                 .labelsHidden().frame(width: 100)
+            }
+        }
+    }
+}
+
+// MARK: - Beat
+
+/// Beat Clock の操作パネルです。BPM、Tap Tempo、Downbeat、Launch Quantize を操作します。
+private struct BeatPanel: View {
+    @ObservedObject var clock: BeatClock
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            HStack(spacing: 8) {
+                Caption("Beat")
+                TextField("", value: Binding(get: { clock.bpm }, set: { clock.setBPM($0) }),
+                          format: .number.precision(.fractionLength(0...1)))
+                    .textFieldStyle(.plain)
+                    .font(.system(size: 22, weight: .heavy, design: .monospaced))
+                    .multilineTextAlignment(.trailing)
+                    .frame(width: 70)
+                Text("BPM").font(.system(size: 10, weight: .semibold, design: .monospaced)).foregroundStyle(Theme.dim)
+                ForEach([-1.0, -0.1, 0.1, 1.0], id: \.self) { step in
+                    Button(step > 0 ? "+\(step.formatted())" : step.formatted()) { clock.setBPM(clock.bpm + step) }
+                        .buttonStyle(PillButtonStyle())
+                }
+                Spacer()
+                BeatDots(clock: clock)
+            }
+            HStack(spacing: 8) {
+                Button("TAP") { clock.tap() }.buttonStyle(PillButtonStyle(tint: Theme.bankA))
+                    .help("叩いた間隔で BPM を決めます(キー: t)")
+                Button("DOWNBEAT") { clock.downbeat() }.buttonStyle(PillButtonStyle(tint: Theme.bankB))
+                    .help("いまを小節の頭にします(キー: d)")
+                Spacer()
+                Caption("Launch Quantize")
+                ForEach(LaunchQuantize.allCases, id: \.self) { mode in
+                    Button(mode.title) { clock.quantize = mode }
+                        .buttonStyle(PillButtonStyle(tint: Theme.bankA, active: clock.quantize == mode))
+                }
+            }
+        }
+        .panel()
+    }
+}
+
+/// 小節の4拍を、いまの拍だけ光る点で示します。
+private struct BeatDots: View {
+    let clock: BeatClock
+
+    var body: some View {
+        TimelineView(.animation) { _ in
+            let beat = clock.beatInBar()
+            HStack(spacing: 6) {
+                ForEach(0..<BeatClock.beatsPerBar, id: \.self) { i in
+                    let lit = i == beat.index ? max(0.15, 1 - beat.phase) : 0.15
+                    Circle()
+                        .fill(i == 0 ? Theme.bankB : Theme.bankA)
+                        .opacity(lit)
+                        .frame(width: 12, height: 12)
+                        .shadow(color: (i == 0 ? Theme.bankB : Theme.bankA).opacity(lit * 0.8), radius: 5)
+                }
             }
         }
     }

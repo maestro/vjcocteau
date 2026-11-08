@@ -6,7 +6,7 @@ A native macOS VJ application. Switch, layer and (soon) process live video from 
 
 Built with Swift, Metal, AVFoundation and CoreMIDI. Designed around the Akai Professional **APC mini MK2**.
 
-> **Status: early development.** Stages 1–4 are implemented (see [Roadmap](#roadmap)). The APC mini MK2 integration has been tested only against a simulated MIDI device, **not yet on real hardware**.
+> **Status: early development.** Stages 1–5 (tap tempo) are implemented (see [Roadmap](#roadmap)). The APC mini MK2 integration has been tested only against a simulated MIDI device, **not yet on real hardware**.
 
 ## Features
 
@@ -19,7 +19,9 @@ Built with Swift, Metal, AVFoundation and CoreMIDI. Designed around the Akai Pro
 
 - **Modular Effects** — drop a folder with a Metal shader and a JSON parameter declaration to add an Effect, with hot-reload. Up to 4 Effects each on a Layer, a Bank, and the Master output. See [docs/effects.md](docs/effects.md).
 
-Planned: BPM sync from live audio and Set save/load. See [Roadmap](#roadmap).
+- **Beat Clock** — set the BPM by tap tempo or by hand. Clip ON, Cut and Bank swaps wait for the next beat (Launch Quantize: none / 1 beat / 1 bar). Effects can read the beat position as `p.beat` (see the Beat Pulse Effect).
+
+Planned: automatic beat detection from live audio, and Set save/load. See [Roadmap](#roadmap).
 
 ## Requirements
 
@@ -69,6 +71,7 @@ On first launch the Output Window goes to the first non-built-in display, or to 
 | `Shift` + bottom 1 / 2 | Edit Deck A / B |
 | `Shift` + bottom 3 / 4 | Cut to Deck A / B |
 | `Shift` + right 1–4 | Select Bank page (01–08, 09–16, 17–24, 25–32) |
+| `Shift` + bottom 5 / 6 / 7 | Tap Tempo / Downbeat / cycle Launch Quantize |
 | `Shift` + fader 9 | Master brightness |
 
 Faders use Pickup: a fader is ignored until it reaches the current on-screen value. The control window shows a yellow ring at the physical position while a fader is waiting. See [docs/controller-layout.md](docs/controller-layout.md) for LED behavior and the MIDI map.

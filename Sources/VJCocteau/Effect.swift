@@ -231,7 +231,7 @@ final class EffectLibrary: ObservableObject {
     #include <metal_stdlib>
     using namespace metal;
     struct EffectVertexOut { float4 position [[position]]; float2 uv; };
-    struct EffectParams { float time; float aspect; float2 resolution; float values[16]; };
+    struct EffectParams { float time; float aspect; float2 resolution; float beat; float bpm; float2 pad; float values[16]; };
     vertex EffectVertexOut fullscreen_vertex(uint vid [[vertex_id]]) {
         float2 pos[3] = { float2(-1, -1), float2(3, -1), float2(-1, 3) };
         EffectVertexOut out;

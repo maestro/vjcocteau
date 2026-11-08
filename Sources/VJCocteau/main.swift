@@ -119,6 +119,14 @@ addMenu("Deck") { menu in
     let toB = menu.addItem(withTitle: "Crossfader を B 側へ", action: #selector(AppController.nudgeCrossfader(_:)), keyEquivalent: right)
     toB.tag = 5; toB.target = controller; toB.keyEquivalentModifierMask = []
 }
+addMenu("Beat") { menu in
+    let tap = menu.addItem(withTitle: "Tap Tempo", action: #selector(AppController.tapTempo(_:)), keyEquivalent: "t")
+    tap.target = controller; tap.keyEquivalentModifierMask = []
+    let down = menu.addItem(withTitle: "Downbeat(いまを小節の頭にする)", action: #selector(AppController.setDownbeat(_:)), keyEquivalent: "d")
+    down.target = controller; down.keyEquivalentModifierMask = []
+    let quant = menu.addItem(withTitle: "Launch Quantize を切り替える", action: #selector(AppController.cycleQuantize(_:)), keyEquivalent: "q")
+    quant.target = controller; quant.keyEquivalentModifierMask = []
+}
 app.mainMenu = mainMenu
 controller.updateTitle()
 

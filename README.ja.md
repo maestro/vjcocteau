@@ -6,7 +6,7 @@ Mac ネイティブの VJ ソフトウェアです。MIDI コントローラー�
 
 Swift、Metal、AVFoundation、CoreMIDI で作っています。Akai Professional の **APC mini MK2** を前提に設計しています。
 
-> **ステータス: 開発の初期段階です。** 段階1〜4を実装済みです([ロードマップ](#ロードマップ)を参照)。APC mini MK2 との連携は、疑似の MIDI 機器でだけ検証していて、**実機ではまだ試していません**。
+> **ステータス: 開発の初期段階です。** 段階1〜5(タップテンポまで)を実装済みです([ロードマップ](#ロードマップ)を参照)。APC mini MK2 との連携は、疑似の MIDI 機器でだけ検証していて、**実機ではまだ試していません**。
 
 ## 特長
 
@@ -19,7 +19,9 @@ Swift、Metal、AVFoundation、CoreMIDI で作っています。Akai Professiona
 
 - **モジュール式の Effect** — Metal シェーダーと、パラメータを宣言する JSON のフォルダを置くだけで、Effect を追加できます。ホットリロードにも対応します。Layer、Bank、Master の各 Chain に、最大4個ずつかけられます。[docs/effects.ja.md](docs/effects.ja.md) を参照してください。
 
-予定: ライブ音声からの BPM 同期、Set の保存・読込。[ロードマップ](#ロードマップ)を参照してください。
+- **Beat Clock** — BPM は、タップテンポか手入力で合わせます。Clip の ON、Cut、Bank の入れ替えは、次の拍まで待ちます(Launch Quantize: なし / 1拍 / 1小節)。Effect は、拍の位置を `p.beat` で読めます(Beat Pulse を参照)。
+
+予定: ライブ音声からの自動の拍検出、Set の保存・読込。[ロードマップ](#ロードマップ)を参照してください。
 
 ## 動作環境
 
@@ -68,6 +70,7 @@ swift run -c release VJCocteau [動画1 動画2 ... 動画8]
 | フェーダー 9 | Crossfader |
 | `Shift` + 下段 1 / 2 | Edit Deck を A / B にする |
 | `Shift` + 下段 3 / 4 | Deck A / B へ Cut |
+| `Shift` + 下段 5 / 6 / 7 | Tap Tempo / Downbeat / Launch Quantize の切り替え |
 | `Shift` + 右列 1〜4 | Bank のページを選ぶ(01〜08、09〜16、17〜24、25〜32) |
 | `Shift` + フェーダー 9 | Master の明るさ |
 

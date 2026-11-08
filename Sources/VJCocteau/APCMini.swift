@@ -123,7 +123,10 @@ final class APCMini: ObservableObject {
                 case 1: controller.setEditDeck(1)
                 case 2: controller.cut(to: 0)
                 case 3: controller.cut(to: 1)
-                default: break // 5〜8 は段階5で割り当てます
+                case 4: controller.clock.tap()
+                case 5: controller.clock.downbeat()
+                case 6: controller.clock.quantize = controller.clock.quantize.next
+                default: break // 8 は Beat Detection の ON/OFF 用に予約
                 }
             } else {
                 controller.toggleLayer(index)
@@ -231,24 +234,30 @@ final class APCMini: ObservableObject {
                 if slot.clipURL != nil {
                     velocity = deckColor
                     channel = !layer.isEnabled ? 0 : (slot.isOn ? 6 : 1) // 10% / 100% / 25%
+                    if slot.isPending { channel = 12 } // 拍待ちは点滅
                 }
                 led(note: UInt8((7 - slotIndex) * 8 + column), status: 0x90 | channel, velocity: velocity)
             }
         }
         // 下段のトラックボタン(赤)
         for index in 0..<8 {
-            var on = false
+            var velocity: UInt8 = 0 // 0 = 消灯、1 = 点灯、2 = 点滅
             if shiftHeld {
+                let beat = controller.clock.beatInBar()
                 switch index {
-                case 0: on = controller.editDeck == 0
-                case 1: on = controller.editDeck == 1
-                case 2, 3: on = pressedButtons.contains(UInt8(100 + index))
-                default: on = false
+                case 0: velocity = controller.editDeck == 0 ? 1 : 0
+                case 1: velocity = controller.editDeck == 1 ? 1 : 0
+                case 2, 3:
+                    velocity = controller.pendingCut == index - 2 ? 2 : (pressedButtons.contains(UInt8(100 + index)) ? 1 : 0)
+                case 4: velocity = beat.phase < 0.2 ? 1 : 0
+                case 5: velocity = beat.index == 0 && beat.phase < 0.2 ? 1 : 0
+                case 6: velocity = UInt8(controller.clock.quantize.rawValue) // なし 0 / 1拍 1 / 1小節 2
+                default: velocity = 0
                 }
             } else {
-                on = bank.layers[index].isEnabled
+                velocity = bank.layers[index].isEnabled ? 1 : 0
             }
-            led(note: UInt8(100 + index), status: 0x90, velocity: on ? 1 : 0)
+            led(note: UInt8(100 + index), status: 0x90, velocity: velocity)
         }
         // 右列のシーンボタン(緑): 1 = 点灯、2 = 点滅
         for index in 0..<8 {

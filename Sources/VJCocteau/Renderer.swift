@@ -66,6 +66,9 @@ final class Renderer: NSObject, MTKViewDelegate {
     private let presentPipeline: MTLRenderPipelineState
     private let mixPipeline: MTLRenderPipelineState
     let effectLibrary: EffectLibrary
+    let clock = BeatClock()
+    /// 毎フレームの最初に呼ばれます(Launch Quantize で待たせた操作の実行に使います)。
+    var onFrame: (() -> Void)?
     /// 最終映像(Deck A/B を混ぜたあと)にかかる Effect Chain です。
     let masterEffects = EffectChain()
     private let startTime = CACurrentMediaTime()
@@ -237,6 +240,7 @@ final class Renderer: NSObject, MTKViewDelegate {
                             buffer: MTLCommandBuffer) -> MTLTexture {
         var from = source, to = scratch
         let time = Float(CACurrentMediaTime() - startTime)
+        let beat = Float(clock.position()), bpm = Float(clock.bpm)
         for (instance, definition) in effects {
             let pass = MTLRenderPassDescriptor()
             pass.colorAttachments[0].texture = to
@@ -244,7 +248,7 @@ final class Renderer: NSObject, MTKViewDelegate {
             pass.colorAttachments[0].storeAction = .store
             guard let encoder = buffer.makeRenderCommandEncoder(descriptor: pass) else { continue }
             let width = Float(to.width), height = Float(to.height)
-            var values: [Float] = [time, width / max(height, 1), width, height] + instance.packed(for: definition)
+            var values: [Float] = [time, width / max(height, 1), width, height, beat, bpm, 0, 0] + instance.packed(for: definition)
             encoder.setRenderPipelineState(definition.pipeline)
             encoder.setFragmentTexture(from, index: 0)
             encoder.setFragmentBytes(&values, length: values.count * MemoryLayout<Float>.stride, index: 0)
@@ -307,7 +311,8 @@ final class Renderer: NSObject, MTKViewDelegate {
     func draw(in view: MTKView) {
         applyResolution(to: view)
         // ロード中の Bank が準備できていれば入れ替えます(拍への同期は段階5で入れます)。
-        for deck in decks { deck.commitIfReady() }
+        onFrame?()
+        for deck in decks { deck.commitIfReady { [clock] in clock.launchTime() } }
         ensureTextures(size: view.drawableSize)
         guard let buffer = queue.makeCommandBuffer(),
               let fallbackA = textures["bank0"], let fallbackB = textures["bank1"],

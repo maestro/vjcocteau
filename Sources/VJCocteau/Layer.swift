@@ -36,6 +36,8 @@ final class ClipSlot: ObservableObject {
     @Published var blendMode: BlendMode = .normal
     /// ON のとき、再生して重ねて映します。
     @Published private(set) var isOn = false
+    /// ON の指示を受けて、次の拍(Launch Quantize)を待っています。
+    @Published var isPending = false
 
     /// 動画を割り当てます。`open` が true なら、動画をすぐ開きます(再生はしません)。
     @discardableResult
@@ -135,6 +137,8 @@ final class Deck: ObservableObject {
     @Published private(set) var pendingBank: Bank?
     /// ロード中の Bank の進み具合です(0〜1)。ロード中でなければ 0 です。
     @Published private(set) var progress: Double = 0
+    /// ロードが終わった Bank を入れ替える時刻です(Launch Quantize の境目)。
+    private var commitTime: Double?
 
     init(name: String, bank: Bank) {
         self.name = name
@@ -145,19 +149,25 @@ final class Deck: ObservableObject {
         if let pendingBank, pendingBank !== bank { pendingBank.deactivate() }
         pendingBank = next
         progress = 0
+        commitTime = nil
     }
 
     /// ロード中の Bank が準備できたら入れ替えます。入れ替えたら true を返します。
-    /// 時間で打ち切ることはしません。終わるまで元の Bank を出し続けます。
+    /// 時間で打ち切ることはしません。入れ替えは、Launch Quantize の境目まで待ちます。終わるまで元の Bank を出し続けます。
     /// 別の Bank をロードし直せば、ロード中の Bank を取り消せます。
     @discardableResult
-    func commitIfReady() -> Bool {
+    func commitIfReady(launchTime: () -> Double) -> Bool {
         guard let next = pendingBank else { return false }
         let state = next.loadState
         let done = state.ready == state.total
         let value = state.total == 0 ? 1 : Double(state.ready) / Double(state.total)
         if value != progress { progress = value }
-        guard done else { return false }
+        guard done else { commitTime = nil; return false }
+        // ロードが終わっても、次の拍の頭まで待ってから入れ替えます。
+        let time = commitTime ?? launchTime()
+        commitTime = time
+        guard CACurrentMediaTime() >= time else { return false }
+        commitTime = nil
         let old = bank
         bank = next
         pendingBank = nil
