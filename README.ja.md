@@ -27,7 +27,7 @@ Swift、Metal、AVFoundation、CoreMIDI で作っています。Akai Professiona
 
 ## パッケージ化
 
-`scripts/package.sh`(`project.yml` から Xcode プロジェクトを生成します)で `dist/VJ Cocteau.app` と zip を作ります(`--universal` で arm64 + x86_64)。既定は ad-hoc 署名で、自分の Mac で動かすには十分です。ほかの Mac へ配ると Gatekeeper に止められます(右クリック → 開く)。配布するときは `SIGN_ID="Developer ID Application: …"` を渡して署名し、`xcrun notarytool` で公証してください。
+Xcode で Product → Archive を選び、Distribute App → Copy App で `VJ Cocteau.app` を取り出します。署名は ad-hoc で、自分の Mac で動かすには十分です。ほかの Mac へ配ると Gatekeeper に止められます(右クリック → 開く)。配布するときは、ターゲットの Signing & Capabilities でチームと Developer ID を設定し、Archive の Organizer から公証してください。
 
 ## 動作環境
 
@@ -39,10 +39,8 @@ Swift、Metal、AVFoundation、CoreMIDI で作っています。Akai Professiona
 ## ビルドと実行
 
 ```sh
-brew install xcodegen   # 初回のみ
-xcodegen generate       # VJCocteau.xcodeproj を作ります。Xcode で開くか、次のコマンドを使います
-scripts/package.sh      # dist/VJ Cocteau.app を作ります
-open "dist/VJ Cocteau.app" --args 動画1.mp4 動画2.mp4   # 動画は省略できます
+open VJCocteau.xcodeproj   # Xcode で Run(⌘R)します
+# project.yml を編集したあと: brew install xcodegen && xcodegen generate
 ```
 
 引数の動画は、Deck A にロードされた Bank 01 の Layer 1〜8 のスロット1に、順に割り当てて ON にします。操作画面からも読み込めます(フォルダのアイコン、または Clip Matrix のマスを右クリック)。
