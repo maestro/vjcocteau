@@ -1,21 +1,15 @@
+[English](SECURITY.md) | [日本語](SECURITY.ja.md)
+
 # Security Policy
 
 ## Supported Versions
 
-Use this section to tell people about which versions of your project are
-currently being supported with security updates.
-
-| Version | Supported          |
-| ------- | ------------------ |
-| 5.1.x   | :white_check_mark: |
-| 5.0.x   | :x:                |
-| 4.0.x   | :white_check_mark: |
-| < 4.0   | :x:                |
+VJ Cocteau is in early development. Only the latest commit on `main` receives security fixes.
 
 ## Reporting a Vulnerability
 
-Use this section to tell people how to report a vulnerability.
+Please do not open a public issue for a security problem.
 
-Tell them where to go, how often they can expect to get an update on a
-reported vulnerability, what to expect if the vulnerability is accepted or
-declined, etc.
+Report it privately through [GitHub Security Advisories](https://github.com/maestro/vjcocteau/security/advisories/new) ("Report a vulnerability" on the repository's Security tab).
+
+Include what you found, how to reproduce it, and which version or commit you used. This is a personal project, so there is no guaranteed response time, but I will try to reply within a week. If the report is accepted, I will fix it on `main` and credit you in the fix unless you prefer to stay anonymous.
